@@ -23,7 +23,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
 
     getChildren(element?: PackageItem): vscode.ProviderResult<PackageItem[]> {
         if (!this.workspaceRoot) {
-            vscode.window.showInformationMessage('No PackageItem in empty workspace');
+            // vscode.window.showInformationMessage('No PackageItem in empty workspace');
             return Promise.resolve([]);
         }
         if (element) {
@@ -38,7 +38,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
             if (this.pathExists(pubspecYamlPath)) {
                 return Promise.resolve(this._loadIntlMap());
             } else {
-                vscode.window.showInformationMessage('Workspace has no pubspec.yaml');
+                // vscode.window.showInformationMessage('Workspace has no pubspec.yaml');
                 return Promise.resolve([]);
             }
         }
