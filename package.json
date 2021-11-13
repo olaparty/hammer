@@ -1,8 +1,8 @@
 {
 	"name": "hammer",
 	"displayName": "Hammer",
-	"description": "Hammer  for Visual Studio Code",
-	"publisher": "Crowdin",
+	"description": "Hammer for Visual Studio Code",
+	"publisher": "zhileichen",
 	"version": "1.0.0",
 	"license": "MIT",
 	"engines": {
@@ -71,7 +71,7 @@
 		"commands": [
             {
 				"command": "localTranslations.create",
-				"title": "create a localized string",
+				"title": "Convert to k.dart",
 				"icon": {
 					"light": "resources/light/refresh.svg",
 					"dark": "resources/dark/refresh.svg"
@@ -208,6 +208,7 @@
             "editor/context": [
                 {
                   "command": "localTranslations.create",
+                  "when": "editorLangId == dart",
                   "group": "YourGroup@0"
                 }
               ]
