@@ -59,12 +59,13 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
             return;
         }
 
-        var selection = editor.selection;
-        var text = editor.document.getText(selection);
-        var packagePath = this._getPackagePath(editor.document.uri.path);
-        var result = await vscode.window.showInputBox({
-            placeHolder: 'input value to create a new one',
-            prompt: `create a new one in at ${packagePath}`,
+        const selection = editor.selection;
+        const text = editor.document.getText(selection);
+        const packagePath = this._getPackagePath(editor.document.uri.path);
+        const relativePackagePath = (packagePath??'').replace(this.workspaceRoot??'', '');
+        const result = await vscode.window.showInputBox({
+            placeHolder: `input the key of '${text}'`,
+            prompt: `Save '${text}' into ${path.join(relativePackagePath, cnJsonRelativePath)}`,
         });
 
         this._addLocalEntry(result, text, packagePath);
