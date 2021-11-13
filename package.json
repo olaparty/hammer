@@ -1,0 +1,250 @@
+{
+	"name": "hammer",
+	"displayName": "Hammer",
+	"description": "Hammer  for Visual Studio Code",
+	"publisher": "Crowdin",
+	"version": "1.0.0",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.35.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"keywords": [
+		"Crowdin",
+		"Localization",
+		"Internationalization",
+		"i18n",
+		"Translation",
+		"Translate",
+		"Multi-language"
+	],
+	"activationEvents": [
+		"onView:localTranslations",
+        "onLanguage:dart",
+        "workspaceContains:*.dart",
+		"workspaceContains:*/*.dart",
+		"workspaceContains:*/*/*.dart"
+	],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"configuration": [
+			{
+				"title": "Hammer",
+				"properties": {
+					"tms.autoRefresh": {
+						"type": "boolean",
+						"default": "true",
+						"description": "Enables or disables auto refresh after each change in Crowdin configuration file.",
+						"scope": "window"
+					}
+				}
+			}
+		],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "ola-hammer",
+					"title": "Hammer",
+					"icon": "resources/icon.svg"
+				}
+			]
+		},
+		"views": {
+			"ola-hammer": [
+                {
+					"id": "localTranslations",
+					"name": "Translatesions"
+				},
+				{
+					"id": "tmsFiles",
+					"name": "TMS Files"
+				},
+				{
+					"id": "translationProgress",
+					"name": "Progress"
+				}
+                
+			]
+		},
+		"commands": [
+            {
+				"command": "localTranslations.create",
+				"title": "create a localized string",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "tmsFiles.refresh",
+				"title": "Refresh folders",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "tmsFiles.downloadAll",
+				"title": "Download translations",
+				"icon": {
+					"light": "resources/light/download.svg",
+					"dark": "resources/dark/download.svg"
+				}
+			},
+			{
+				"command": "tmsFiles.download",
+				"title": "Download translations",
+				"icon": {
+					"light": "resources/light/download.svg",
+					"dark": "resources/dark/download.svg"
+				}
+			},
+			{
+				"command": "tmsFiles.saveAll",
+				"title": "Upload source files",
+				"icon": {
+					"light": "resources/light/upload.svg",
+					"dark": "resources/dark/upload.svg"
+				}
+			},
+			{
+				"command": "tmsFiles.save",
+				"title": "Upload source files",
+				"icon": {
+					"light": "resources/light/upload.svg",
+					"dark": "resources/dark/upload.svg"
+				}
+			},
+			{
+				"command": "tmsFiles.edit",
+				"title": "Edit configuration",
+				"icon": {
+					"light": "resources/light/settings.svg",
+					"dark": "resources/dark/settings.svg"
+				}
+			},
+			{
+				"command": "translationProgress.refresh",
+				"title": "Refresh progress",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "tmsFiles.updateSourceFolder",
+				"title": "Download source files",
+				"icon": {
+					"light": "resources/light/download_source.svg",
+					"dark": "resources/dark/download_source.svg"
+				}
+			},
+			{
+				"command": "tmsFiles.updateSourceFile",
+				"title": "Download source file",
+				"icon": {
+					"light": "resources/light/download_source.svg",
+					"dark": "resources/dark/download_source.svg"
+				}
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "tmsFiles.refresh",
+					"when": "view == tmsFiles",
+					"group": "navigation@0"
+				},
+				{
+					"command": "tmsFiles.saveAll",
+					"when": "view == tmsFiles",
+					"group": "navigation@1"
+				},
+				{
+					"command": "tmsFiles.downloadAll",
+					"when": "view == tmsFiles",
+					"group": "navigation@2"
+				},
+				{
+					"command": "tmsFiles.updateSourceFolder",
+					"when": "view == tmsFiles",
+					"group": "navigation@3"
+				},
+				{
+					"command": "translationProgress.refresh",
+					"when": "view == translationProgress",
+					"group": "navigation@0"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "tmsFiles.edit",
+					"when": "view == tmsFiles && viewItem == tmsRoot",
+					"group": "inline@0"
+				},
+				{
+					"command": "tmsFiles.save",
+					"when": "view == tmsFiles",
+					"group": "inline@1"
+				},
+				{
+					"command": "tmsFiles.download",
+					"when": "view == tmsFiles && viewItem == tmsRoot",
+					"group": "inline@2"
+				},
+				{
+					"command": "tmsFiles.updateSourceFolder",
+					"when": "view == tmsFiles && viewItem == tmsRoot",
+					"group": "inline@3"
+				},
+				{
+					"command": "tmsFiles.updateSourceFile",
+					"when": "view == tmsFiles && viewItem == tmsFile",
+					"group": "inline@4"
+				}
+			],
+            "editor/context": [
+                {
+                  "command": "localTranslations.create",
+                  "group": "YourGroup@0"
+                }
+              ]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "webpack --mode production",
+		"webpack": "webpack --mode development",
+		"webpack-dev": "webpack --mode development --watch",
+		"test-compile": "tsc -p ./"
+	},
+	"icon": "icon.png",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/olachat/hammer.git"
+	},
+	"devDependencies": {
+		"@types/adm-zip": "^0.4.32",
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^5.2.6",
+		"@types/node": "^10.14.10",
+		"@types/yaml": "^1.0.2",
+		"glob": "^7.1.1",
+		"mocha": "^6.1.4",
+		"ts-loader": "8.1.0",
+		"tslint": "^5.12.1",
+		"typescript": "^3.5.2",
+		"vscode-test": "1.3.0",
+		"@types/vscode": "1.35.0",
+		"webpack": "5.30.0",
+		"webpack-cli": "4.6.0"
+	},
+	"dependencies": {
+		"@crowdin/crowdin-api-client": "1.11.7",
+		"adm-zip": "^0.4.14",
+		"glob": "^7.1.4",
+		"original-fs": "^1.1.0",
+		"yaml": "^1.6.0"
+	}
+}
