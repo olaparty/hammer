@@ -3,7 +3,7 @@
     "displayName": "Hammer",
     "description": "Hammer for Visual Studio Code",
     "publisher": "zhileichen",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "license": "MIT",
     "engines": {
         "vscode": "^1.35.0"
@@ -74,6 +74,14 @@
                 }
             },
             {
+                "command": "localTranslations.download",
+                "title": "Download translations from Crowdin",
+                "icon": {
+                    "light": "resources/light/download.svg",
+                    "dark": "resources/dark/download.svg"
+                }
+            },
+            {
                 "command": "translationProgress.refresh",
                 "title": "Refresh progress",
                 "icon": {
@@ -87,6 +95,11 @@
                 {
                     "command": "translationProgress.refresh",
                     "when": "view == translationProgress",
+                    "group": "navigation@0"
+                },
+                {
+                    "command": "localTranslations.download",
+                    "when": "view == localTranslations",
                     "group": "navigation@0"
                 }
             ],
