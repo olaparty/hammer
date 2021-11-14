@@ -14,9 +14,9 @@ export class PackageItem extends vscode.TreeItem {
         this.description = this.version;
         const type = vscode.TreeItemCollapsibleState.None ? '-sub' : '';
         this.contextValue = 'PackageItem' + type;
-        this.iconPath =Constants.EXTENSION_CONTEXT.asAbsolutePath(path.join('resources', 'light', 'folder.svg'));
-        
-        if(collapsibleState === vscode.TreeItemCollapsibleState.None){
+        this.iconPath = Constants.EXTENSION_CONTEXT.asAbsolutePath(path.join('resources', 'light', 'folder.svg'));
+
+        if (collapsibleState === vscode.TreeItemCollapsibleState.None) {
             this.command = {
                 "title": "Show json file",
                 "command": "localTranslations.showEntry",

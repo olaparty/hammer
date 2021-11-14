@@ -62,7 +62,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         const selection = editor.selection;
         const text = editor.document.getText(selection);
         const packagePath = this._getPackagePath(editor.document.uri.path);
-        const relativePackagePath = (packagePath??'').replace(this.workspaceRoot??'', '');
+        const relativePackagePath = (packagePath ?? '').replace(this.workspaceRoot ?? '', '');
         const result = await vscode.window.showInputBox({
             placeHolder: `input the key of '${text}'`,
             prompt: `Save '${text}' into ${path.join(relativePackagePath, cnJsonRelativePath)}`,
@@ -94,7 +94,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
     }
 
     private _addLocalEntry(entryName: string | undefined, entryValue: string | undefined, packageRoot: string | undefined): boolean {
-        if (packageRoot === undefined || entryName === undefined) return false;
+        if (!packageRoot || !entryName) return false;
 
         // validate duplicated keys
         var cnJsonFile = path.join(packageRoot, cnJsonRelativePath);
@@ -121,7 +121,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         editor.edit(edit => edit.replace(new vscode.Range(start, end), `K.${entryName}`));
 
         // check import of current k.dart
-        if(this._shouldInsertKdart(editor.document.uri.path, '' )){
+        if (this._shouldInsertKdart(editor.document.uri.path, '')) {
             editor.edit(edit => edit.insert(new vscode.Position(1, 1), `\nimport \'package:login/k.dart\';\n`));
         }
 
@@ -168,7 +168,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
     private _shouldInsertKdart(filepath: string, packageName: string): boolean {
         const kdartfile = fs.readFileSync(filepath, 'utf-8');
         const lines = kdartfile.split('\n');
-        for(let i = 0; i < 30 && i < lines.length; i++){
+        for (let i = 0; i < 30 && i < lines.length; i++) {
             if (lines[i].includes(`${packageName}/k.dart\';`)) {
                 return false;
             }
