@@ -33,7 +33,13 @@ export class ProgressTreeProvider implements vscode.TreeDataProvider<ProgressTre
                         const { translationStatusApi, projectsGroupsApi, languagesApi } = client.crowdin;
                         const languages = await languagesApi.withFetchAll().listSupportedLanguages();
                         const project = await projectsGroupsApi.getProject(config.projectId);
-                        const progress = await translationStatusApi.withFetchAll().getProjectProgress(config.projectId);
+                        let progress;
+                        if(config.directoryId > 0){
+                            progress = await translationStatusApi.withFetchAll().getDirectoryProgress(config.projectId, config.directoryId);
+                        }else {
+                            progress = await translationStatusApi.withFetchAll().getProjectProgress(config.projectId);
+                        }
+
                         const languagesProgress = progress.data.map((languageProgress) => {
                             const language = languages.data.find(l => l.data.id === languageProgress.data.languageId);
                             return new ProgressTreeItem(

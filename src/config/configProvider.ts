@@ -48,6 +48,9 @@ export class ConfigProvider {
         if (isNaN(Number(projectId))) {
             throw new Error(`Project id is not a number in ${this.workspace.name}`);
         }
+
+        const directoryId: string | undefined = this.getOrEnv(config, 'directory_id', 'directory_id_env');
+
         const apiKey: string | undefined = this.getOrEnv(config, 'api_token', 'api_token_env');
         if (!apiKey) {
             throw new Error(`Missing "api_token" property in ${this.workspace.name}`);
@@ -98,6 +101,7 @@ export class ConfigProvider {
         return {
             configPath: filePath,
             projectId: parseInt(projectId || ''),
+            directoryId: parseInt(directoryId|| ''),
             apiKey: apiKey || '',
             branch: config.branch,
             basePath,

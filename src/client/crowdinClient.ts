@@ -23,7 +23,7 @@ export class CrowdinClient {
             organization: organization
         };
         this.crowdin = new Crowdin(credentials, {
-            userAgent: `crowdin-vscode-plugin/${Constants.PLUGIN_VERSION} vscode/${Constants.VSCODE_VERSION}`,
+            userAgent: `hammer-vscode-plugin/${Constants.PLUGIN_VERSION} vscode/${Constants.VSCODE_VERSION}`,
             retryConfig: {
                 conditions: [],
                 retries: Constants.CLIENT_RETRIES,
