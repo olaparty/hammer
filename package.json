@@ -36,7 +36,7 @@
                 "properties": {
                     "tms.autoRefresh": {
                         "type": "boolean",
-                        "default": "true",
+                        "default": "false",
                         "description": "Enables or disables auto refresh after each change in Crowdin configuration file.",
                         "scope": "window"
                     }
@@ -59,10 +59,6 @@
                     "name": "Translatesions"
                 },
                 {
-                    "id": "tmsFiles",
-                    "name": "TMS Files"
-                },
-                {
                     "id": "translationProgress",
                     "name": "Progress"
                 }
@@ -78,138 +74,27 @@
                 }
             },
             {
-                "command": "tmsFiles.refresh",
-                "title": "Refresh folders",
-                "icon": {
-                    "light": "resources/light/refresh.svg",
-                    "dark": "resources/dark/refresh.svg"
-                }
-            },
-            {
-                "command": "tmsFiles.downloadAll",
-                "title": "Download translations",
-                "icon": {
-                    "light": "resources/light/download.svg",
-                    "dark": "resources/dark/download.svg"
-                }
-            },
-            {
-                "command": "tmsFiles.download",
-                "title": "Download translations",
-                "icon": {
-                    "light": "resources/light/download.svg",
-                    "dark": "resources/dark/download.svg"
-                }
-            },
-            {
-                "command": "tmsFiles.saveAll",
-                "title": "Upload source files",
-                "icon": {
-                    "light": "resources/light/upload.svg",
-                    "dark": "resources/dark/upload.svg"
-                }
-            },
-            {
-                "command": "tmsFiles.save",
-                "title": "Upload source files",
-                "icon": {
-                    "light": "resources/light/upload.svg",
-                    "dark": "resources/dark/upload.svg"
-                }
-            },
-            {
-                "command": "tmsFiles.edit",
-                "title": "Edit configuration",
-                "icon": {
-                    "light": "resources/light/settings.svg",
-                    "dark": "resources/dark/settings.svg"
-                }
-            },
-            {
                 "command": "translationProgress.refresh",
                 "title": "Refresh progress",
                 "icon": {
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
                 }
-            },
-            {
-                "command": "tmsFiles.updateSourceFolder",
-                "title": "Download source files",
-                "icon": {
-                    "light": "resources/light/download_source.svg",
-                    "dark": "resources/dark/download_source.svg"
-                }
-            },
-            {
-                "command": "tmsFiles.updateSourceFile",
-                "title": "Download source file",
-                "icon": {
-                    "light": "resources/light/download_source.svg",
-                    "dark": "resources/dark/download_source.svg"
-                }
             }
         ],
         "menus": {
             "view/title": [
-                {
-                    "command": "tmsFiles.refresh",
-                    "when": "view == tmsFiles",
-                    "group": "navigation@0"
-                },
-                {
-                    "command": "tmsFiles.saveAll",
-                    "when": "view == tmsFiles",
-                    "group": "navigation@1"
-                },
-                {
-                    "command": "tmsFiles.downloadAll",
-                    "when": "view == tmsFiles",
-                    "group": "navigation@2"
-                },
-                {
-                    "command": "tmsFiles.updateSourceFolder",
-                    "when": "view == tmsFiles",
-                    "group": "navigation@3"
-                },
                 {
                     "command": "translationProgress.refresh",
                     "when": "view == translationProgress",
                     "group": "navigation@0"
                 }
             ],
-            "view/item/context": [
-                {
-                    "command": "tmsFiles.edit",
-                    "when": "view == tmsFiles && viewItem == tmsRoot",
-                    "group": "inline@0"
-                },
-                {
-                    "command": "tmsFiles.save",
-                    "when": "view == tmsFiles",
-                    "group": "inline@1"
-                },
-                {
-                    "command": "tmsFiles.download",
-                    "when": "view == tmsFiles && viewItem == tmsRoot",
-                    "group": "inline@2"
-                },
-                {
-                    "command": "tmsFiles.updateSourceFolder",
-                    "when": "view == tmsFiles && viewItem == tmsRoot",
-                    "group": "inline@3"
-                },
-                {
-                    "command": "tmsFiles.updateSourceFile",
-                    "when": "view == tmsFiles && viewItem == tmsFile",
-                    "group": "inline@4"
-                }
-            ],
             "editor/context": [
                 {
                     "command": "localTranslations.create",
                     "when": "editorLangId == dart",
-                    "group": "YourGroup@0"
+                    "group": "HammerGroup@0"
                 }
             ]
         }
