@@ -34,7 +34,7 @@ export class CrowdinConfigHolder {
                     return config;
                 }
                 catch (err) {
-                    ErrorHandler.handleError(err);
+                    // ErrorHandler.handleError(err);
                 }
             });
         await Promise.all(promises);
