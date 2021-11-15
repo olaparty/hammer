@@ -10,6 +10,10 @@ import { CommonUtil } from '../../util/commonUtil';
 
 const asyncGlob = util.promisify(glob);
 
+export const openSearchTranslations = () => {
+    vscode.commands.executeCommand('search.action.openNewEditorToSide', '**/assets/locale/*.json');
+}
+
 export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
     return CommonUtil.withProgress(
         async () => {
@@ -32,7 +36,7 @@ export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
                             config.projectId, config.apiKey, config.branch, config.organization
                         );
                         const sourceFilesArr = await Promise.all(promises);
-                        client.download(path.join(root, 'build'), sourceFilesArr);
+                        await client.download(path.join(root, 'build'), sourceFilesArr);
                     });
             } catch (err) {
                 ErrorHandler.handleError(err);

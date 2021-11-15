@@ -82,6 +82,14 @@
                 }
             },
             {
+                "command": "localTranslations.search",
+                "title": "Search translations in siderbar",
+                "icon": {
+                    "light": "resources/light/search.svg",
+                    "dark": "resources/dark/search.svg"
+                }
+            },
+            {
                 "command": "translationProgress.refresh",
                 "title": "Refresh progress",
                 "icon": {
@@ -101,6 +109,11 @@
                     "command": "localTranslations.download",
                     "when": "view == localTranslations",
                     "group": "navigation@0"
+                },
+                {
+                    "command": "localTranslations.search",
+                    "when": "view == localTranslations",
+                    "group": "navigation@1"
                 }
             ],
             "editor/context": [

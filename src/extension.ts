@@ -3,7 +3,7 @@ import { Constants } from './constants';
 import { CrowdinConfigHolder } from './plugin/crowdinConfigHolder';
 import { ProgressTreeProvider } from './plugin/progress/progressTreeProvider';
 import { LocalTranslationsProvider } from './plugin/translations/localTranslationsProvider';
-import { downloadTranslation } from './plugin/translations/downloadTranslationsCommand';
+import { downloadTranslation, openSearchTranslations } from './plugin/translations/downloadTranslationsCommand';
 
 export function activate(context: vscode.ExtensionContext) {
 	Constants.initialize(context);
@@ -23,6 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('localTranslations.showEntry', args => localTranslationsProvider.showEntry(args));
     vscode.commands.registerCommand('localTranslations.create', args => localTranslationsProvider.addEntry());
 	vscode.commands.registerCommand('localTranslations.download', () => downloadTranslation(configHolder));
+	vscode.commands.registerCommand('localTranslations.search', () => openSearchTranslations());
 
 	vscode.commands.registerCommand('translationProgress.refresh', () => progressProvider.refresh());
 	
