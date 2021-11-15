@@ -117,6 +117,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         var editor = vscode.window.activeTextEditor;
         if (!editor) return false;
         var selection = editor.selection;
+        var moduleName = packageRoot.replace(path.dirname(packageRoot)+'/', '');
 
         var start = new vscode.Position(selection.start.line, selection.start.character - 1);
         var end = new vscode.Position(selection.end.line, selection.end.character + 1);
@@ -124,7 +125,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         var shoudFixImport = this._shouldInsertKdart(editor.document.uri.path, '');
         editor.edit(edit => {
             edit.replace(new vscode.Range(start, end), `K.${entryName}`);
-            shoudFixImport && edit.insert(new vscode.Position(0, 0), `import \'package:login/k.dart\';\n`);
+            shoudFixImport && edit.insert(new vscode.Position(0, 0), `import \'package:${moduleName}/k.dart\';\n`);
         });
 
         // add entry into k.dart 
