@@ -67,7 +67,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
             placeHolder: `input the key of '${text}'`,
             prompt: `Save '${text}' into ${path.join(relativePackagePath, cnJsonRelativePath)}`,
         });
-
+        
         this._addLocalEntry(result, text, packagePath);
     }
 
@@ -98,7 +98,10 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
 
         // validate duplicated keys
         var cnJsonFile = path.join(packageRoot, cnJsonRelativePath);
-        if (!this.pathExists(cnJsonFile)) return false;
+        if (!this.pathExists(cnJsonFile)) {
+            vscode.window.showInformationMessage(`file not exist ${cnJsonFile}`);
+            return false;
+        }
 
         var jsonData = JSON.parse(fs.readFileSync(cnJsonFile, 'utf8'));
         if (jsonData.hasOwnProperty(entryName)) {
@@ -117,13 +120,12 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
 
         var start = new vscode.Position(selection.start.line, selection.start.character - 1);
         var end = new vscode.Position(selection.end.line, selection.end.character + 1);
-
-        editor.edit(edit => edit.replace(new vscode.Range(start, end), `K.${entryName}`));
-
         // check import of current k.dart
-        if (this._shouldInsertKdart(editor.document.uri.path, '')) {
-            editor.edit(edit => edit.insert(new vscode.Position(1, 1), `\nimport \'package:login/k.dart\';\n`));
-        }
+        var shoudFixImport = this._shouldInsertKdart(editor.document.uri.path, '');
+        editor.edit(edit => {
+            edit.replace(new vscode.Range(start, end), `K.${entryName}`);
+            shoudFixImport && edit.insert(new vscode.Position(0, 0), `import \'package:login/k.dart\';\n`);
+        });
 
         // add entry into k.dart 
         var kdartFilePath = path.join(packageRoot, 'lib', 'k.dart');
