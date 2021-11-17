@@ -61,6 +61,11 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
 
         const selection = editor.selection;
         const text = editor.document.getText(selection);
+        const currentLine = editor.document.lineAt(selection.active.line);
+        // currentLine.text.match('\'(.*?)\'');
+        // currentLine.text.match('\"(.*?)\"');
+        // selection.active.line
+
         const packagePath = this._getPackagePath(editor.document.uri.path);
         const relativePackagePath = (packagePath ?? '').replace(this.workspaceRoot ?? '', '');
         const result = await vscode.window.showInputBox({
@@ -93,6 +98,36 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         return this._getPackagePath(parentDir);
     }
 
+    private _replaceEntryValue(value: string | undefined): string | undefined {
+        if (!value) return undefined;
+
+        let str = value;
+        let values = [];
+        let results = str.match(RegExp("\\${(.*?)}", 'g')) ?? [];
+        for (let index = 0; index < results.length; index++) {
+            values.push(results[index]);
+            str = str.replace((results[index] as string), `%0`);
+        }
+
+        results = str.match(RegExp("\\$([^{]*?)(?=\\s)")) ?? [];
+        for (let index = 0; index < results.length; index++) {
+            values.push(results[index]);
+            str = str.replace((results[index] as string), `%0`);
+        }
+
+        results = str.match(RegExp("%\\d", 'g')) ?? [];
+        for (let index = 0; index < results.length; index++) {
+            str = str.replace((results[index] as string), `%0`);
+        }
+
+        const matches = str.match(RegExp("%0", 'g')) ?? [];
+        for (let index = 0; index < matches.length; index++) {
+            str = str.replace((matches[index] as string), `%${index + 1}`);
+        }
+
+        return str;
+    }
+
     private _addLocalEntry(entryName: string | undefined, entryValue: string | undefined, packageRoot: string | undefined): boolean {
         if (!packageRoot || !entryName) return false;
 
@@ -109,8 +144,11 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
             return false;
         }
 
+        const value = this._replaceEntryValue(entryValue);
+        const hasParams = ((value??'').match(RegExp("%\\d", 'g')) ?? []).length > 0;
+
         // add entry into json files
-        jsonData[entryName] = entryValue;
+        jsonData[entryName] = value;
         var newJsonData = JSON.stringify(jsonData, null, 4);
         fs.writeFileSync(cnJsonFile, newJsonData, 'utf-8');
 
@@ -123,8 +161,13 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         var end = new vscode.Position(selection.end.line, selection.end.character + 1);
         // check import of current k.dart
         var shoudFixImport = this._shouldInsertKdart(editor.document.uri.path, '');
+
+        const textToReplace = hasParams ? `K.${entryName}([])` : `K.${entryName}`;
+        const textToJson = hasParams ? `\n\t///${value}\n\tstatic String ${entryName} (List<String> args){ return R.string('${entryName}',args: args);}\n`
+        : `\n\t///${entryValue}\n\tstatic String get ${entryName} => R.string('${entryName}');\n`;
+
         editor.edit(edit => {
-            edit.replace(new vscode.Range(start, end), `K.${entryName}`);
+            edit.replace(new vscode.Range(start, end), textToReplace);
             shoudFixImport && edit.insert(new vscode.Position(0, 0), `import \'package:${moduleName}/k.dart\';\n`);
         });
 
@@ -133,7 +176,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         var insertPos = this._getKDartInsertPos(kdartFilePath);
         var pos = insertPos;
         var wseditor = new vscode.WorkspaceEdit();
-        wseditor.insert(vscode.Uri.file(kdartFilePath), pos, `\n\t///${entryValue}\n\tstatic String get ${entryName} => R.string('${entryName}');\n`);
+        wseditor.insert(vscode.Uri.file(kdartFilePath), pos, textToJson);
         vscode.workspace.applyEdit(wseditor);
 
         return true;
