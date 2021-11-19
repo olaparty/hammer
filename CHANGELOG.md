@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Auto correct selection of current line
 
+## [1.0.4]
+
+### Added
+
+- Support dart string interpolation
+
+
 
 ### Added
 
