@@ -15,9 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Support dart string interpolation
+- Support convert with dart string interpolation
 
+## [1.0.3]
 
+### Added
+
+- Duplicated key detection
 
 ### Added
 

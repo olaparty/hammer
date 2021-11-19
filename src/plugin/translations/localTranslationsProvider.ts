@@ -186,13 +186,13 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         var end = new vscode.Position(selection.end.line, startPos + entryValue.length);
 
         // check import of current k.dart
-        var shoudFixImport = this._shouldInsertKdart(editor.document.uri.path, '');
+        const relativePathToRoot = path.relative(editor.document.uri.fsPath, path.join(packageRoot,'lib'));
+        var shoudFixImport = this._shouldInsertKdart(editor.document.uri.path, relativePathToRoot);
 
         const textToReplace = hasParams ? `K.${entryName}([])` : `K.${entryName}`;
         const textToJson = hasParams ? `\n\t///${value}\n\tstatic String ${entryName} (List<String> args){ return R.string('${entryName}',args: args);}\n`
         : `\n\t///${rawEntryValue}\n\tstatic String get ${entryName} => R.string('${entryName}');\n`;
 
-        const relativePathToRoot = path.relative(editor.document.uri.fsPath, path.join(packageRoot,'lib'));
 
         editor.edit(edit => {
             edit.replace(new vscode.Range(start, end), textToReplace);
@@ -239,11 +239,12 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         return deps;
     }
 
-    private _shouldInsertKdart(filepath: string, packageName: string): boolean {
+    private _shouldInsertKdart(filepath: string, relativePath: string): boolean {
         const kdartfile = fs.readFileSync(filepath, 'utf-8');
         const lines = kdartfile.split('\n');
+
         for (let i = 0; i < 30 && i < lines.length; i++) {
-            if (lines[i].includes(`../k.dart\';`)) {
+            if (lines[i].includes(`${relativePath}/k.dart\';`)) {
                 return false;
             }
         }
