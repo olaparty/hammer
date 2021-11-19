@@ -60,20 +60,37 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         }
 
         const selection = editor.selection;
-        const text = editor.document.getText(selection);
         const currentLine = editor.document.lineAt(selection.active.line);
-        // currentLine.text.match('\'(.*?)\'');
-        // currentLine.text.match('\"(.*?)\"');
-        // selection.active.line
+        var matches = currentLine.text.match(RegExp('\'(.*?)\'', 'g'));
+        if(!matches || !matches.length){
+            matches = currentLine.text.match(RegExp('\"(.*?)\"', 'g'));
+        }
+
+        if(!matches || !matches.length){
+            vscode.window.showInformationMessage('current line does not contain dart string');
+            return;
+        }
+        var selectText = matches[0];
+        if (matches.length > 1) {
+            for (let index = 0; index < matches.length; index++) {
+                const value = matches[index];
+                const startIndex = currentLine.text.indexOf(value);
+                var b = [startIndex, startIndex + value.length];
+                if (selection.start.character >= startIndex && selection.start.character <= startIndex + value.length) {
+                    selectText = value;
+                    break;
+                }
+            };
+        }
 
         const packagePath = this._getPackagePath(editor.document.uri.path);
         const relativePackagePath = (packagePath ?? '').replace(this.workspaceRoot ?? '', '');
         const result = await vscode.window.showInputBox({
-            placeHolder: `input the key of '${text}'`,
-            prompt: `Save '${text}' into ${path.join(relativePackagePath, cnJsonRelativePath)}`,
+            placeHolder: `input the key of '${selectText}'`,
+            prompt: `Save '${selectText}' into ${path.join(relativePackagePath, cnJsonRelativePath)}`,
         });
         
-        this._addLocalEntry(result, text, packagePath);
+        this._addLocalEntry(result, selectText, packagePath);
     }
 
     showEntry(node: PackageItem): void {
@@ -129,22 +146,27 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
     }
 
     private _addLocalEntry(entryName: string | undefined, entryValue: string | undefined, packageRoot: string | undefined): boolean {
-        if (!packageRoot || !entryName) return false;
+        if (!packageRoot || !entryName || !entryValue) return false;
 
         // validate duplicated keys
         var cnJsonFile = path.join(packageRoot, cnJsonRelativePath);
         if (!this.pathExists(cnJsonFile)) {
-            vscode.window.showInformationMessage(`file not exist ${cnJsonFile}`);
+            vscode.window.showWarningMessage(`file not exist ${cnJsonFile}`);
             return false;
         }
 
         var jsonData = JSON.parse(fs.readFileSync(cnJsonFile, 'utf8'));
         if (jsonData.hasOwnProperty(entryName)) {
-            vscode.window.showInformationMessage(`duplicated key ${entryName}`);
+            vscode.window.showErrorMessage(`duplicated key ${entryName}`);
             return false;
         }
 
-        const value = this._replaceEntryValue(entryValue);
+        var rawEntryValue = entryValue;
+        if(entryValue.startsWith('\'') || entryValue.startsWith('\"')){
+            rawEntryValue = entryValue.substring(1,entryValue.length -1);
+        }
+
+        const value = this._replaceEntryValue(rawEntryValue);
         const hasParams = ((value??'').match(RegExp("%\\d", 'g')) ?? []).length > 0;
 
         // add entry into json files
@@ -155,20 +177,26 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         var editor = vscode.window.activeTextEditor;
         if (!editor) return false;
         var selection = editor.selection;
-        var moduleName = packageRoot.replace(path.dirname(packageRoot)+'/', '');
+        const currentLine = editor.document.lineAt(selection.active.line);
 
-        var start = new vscode.Position(selection.start.line, selection.start.character - 1);
-        var end = new vscode.Position(selection.end.line, selection.end.character + 1);
+        var moduleName = packageRoot.replace(path.dirname(packageRoot)+'/', '');
+        var startPos = currentLine.text.indexOf(entryValue);
+
+        var start = new vscode.Position(selection.start.line, startPos);
+        var end = new vscode.Position(selection.end.line, startPos + entryValue.length);
+
         // check import of current k.dart
         var shoudFixImport = this._shouldInsertKdart(editor.document.uri.path, '');
 
         const textToReplace = hasParams ? `K.${entryName}([])` : `K.${entryName}`;
         const textToJson = hasParams ? `\n\t///${value}\n\tstatic String ${entryName} (List<String> args){ return R.string('${entryName}',args: args);}\n`
-        : `\n\t///${entryValue}\n\tstatic String get ${entryName} => R.string('${entryName}');\n`;
+        : `\n\t///${rawEntryValue}\n\tstatic String get ${entryName} => R.string('${entryName}');\n`;
+
+        const relativePathToRoot = path.relative(editor.document.uri.fsPath, path.join(packageRoot,'lib'));
 
         editor.edit(edit => {
             edit.replace(new vscode.Range(start, end), textToReplace);
-            shoudFixImport && edit.insert(new vscode.Position(0, 0), `import \'package:${moduleName}/k.dart\';\n`);
+            shoudFixImport && edit.insert(new vscode.Position(0, 0), `import \'${relativePathToRoot}/k.dart\';\n`);
         });
 
         // add entry into k.dart 
@@ -215,7 +243,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         const kdartfile = fs.readFileSync(filepath, 'utf-8');
         const lines = kdartfile.split('\n');
         for (let i = 0; i < 30 && i < lines.length; i++) {
-            if (lines[i].includes(`${packageName}/k.dart\';`)) {
+            if (lines[i].includes(`../k.dart\';`)) {
                 return false;
             }
         }
@@ -242,19 +270,6 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         return new vscode.Position(0, 0);
     }
 
-    // private getSelectionInPackageJson(node: PackageItem): vscode.Range {
-    //     if (this.pathExists(node.packagePubspecPath)) {
-    //         const packageJson = fs.readFileSync(node.packagePubspecPath, 'utf-8');
-    //         const lines = packageJson.split('\n');
-    //         for (let i = 0; lines.length; i++) {
-    //             const pos = lines[i].indexOf(`"${node.label}"`);
-    //             if (pos > 0) {
-    //                 return new vscode.Range(i, pos + 1, i, pos + node.label.length + 1);
-    //             }
-    //         }
-    //     }
-    //     return new vscode.Range(0, 0, 0, 0);
-    // }
 
     private getSupportLans(packagePubspecPath: string): PackageItem[] {
         if (this.pathExists(packagePubspecPath)) {
