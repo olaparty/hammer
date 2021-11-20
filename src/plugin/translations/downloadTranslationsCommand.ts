@@ -56,7 +56,9 @@ export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
                 );
                 const sourceFilesArr = await Promise.all(promises);
                 //@ts-ignore
-                await client.download(root, sourceFilesArr);
+                const results = await client.download(root, sourceFilesArr);
+
+                vscode.window.showInformationMessage(`sync finished \n${results.join('\n')}`);
             } catch (err) {
                 ErrorHandler.handleError(err);
             }

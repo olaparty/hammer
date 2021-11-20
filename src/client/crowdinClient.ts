@@ -77,6 +77,7 @@ export class CrowdinClient {
                 return false;
             });
 
+            let results: string[] = [];
             filesToUnzip.forEach(file => {
 
 
@@ -102,9 +103,12 @@ export class CrowdinClient {
                 const filePath = path.join(unzipFolder, entryName);
                 const directory = path.dirname(filePath);
                 if (fs.existsSync(directory)) {
+                    results.push(entryName);
                     fs.writeFileSync(filePath, file.getData());
                 }
             });
+
+            return results;
         } catch (error) {
             throw new Error(`Failed to download translations for project ${this.projectId}. ${this.getErrorMessage(error)}`);
         }
