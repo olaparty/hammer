@@ -109,6 +109,7 @@ export class ConfigProvider {
                 return {
                     source: f.source,
                     translation: f.translation,
+                    directory: f.directory,
                     updateOption: this.getFileUpdateOption(f.update_option),
                     excludedTargetLanguages: f.excluded_target_languages,
                     labels: f.labels,
@@ -178,6 +179,7 @@ interface PrivateConfigModel {
 interface PrivateFileModel {
     source: string;
     translation: string;
+    directory: string;
     update_option?: string;
     excluded_target_languages?: string[];
     labels?: string[];

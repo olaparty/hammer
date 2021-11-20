@@ -18,6 +18,7 @@ export class PathUtil {
     static PLACEHOLDER_OSX_LOCALE = '%osx_locale%';
     static PLACEHOLDER_ORIGINAL_FILE_NAME = '%original_file_name%';
     static PLACEHOLDER_ORIGINAL_PATH = '%original_path%';
+    static PLACEHOLDER_MODULE_NAME = '%module_name%';
 
     /**
      * Replaces ** in translation pattern

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { Constants } from './constants';
 import { CrowdinConfigHolder } from './plugin/crowdinConfigHolder';
 import { ProgressTreeProvider } from './plugin/progress/progressTreeProvider';
@@ -7,6 +8,7 @@ import { downloadTranslation, openSearchTranslations } from './plugin/translatio
 
 export function activate(context: vscode.ExtensionContext) {
 	Constants.initialize(context);
+
 
 	const configHolder = new CrowdinConfigHolder();
 	const progressProvider = new ProgressTreeProvider(configHolder);

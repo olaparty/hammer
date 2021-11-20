@@ -17,7 +17,8 @@ export class CrowdinClient {
         readonly projectId: number,
         readonly apiKey: string,
         readonly branch?: string,
-        readonly organization?: string) {
+        readonly organization?: string,
+        readonly supportLanguages?: string[]) {
         const credentials: Credentials = {
             token: apiKey,
             organization: organization
@@ -60,19 +61,49 @@ export class CrowdinClient {
             const resp = await axios.get(downloadLink.data.url, { responseType: 'arraybuffer' });
             const zip = new AdmZip(resp.data);
 
-            const downloadedTranslationFiles = zip.getEntries().filter(entry => !entry.isDirectory);
-            const translationFilesToDownload = await this.translationFilesToDownload(unzipFolder, sourceFilesArr);
-            const filesToUnzip = downloadedTranslationFiles.filter(file => {
-                return translationFilesToDownload.includes(path.join(unzipFolder, file.entryName));
+            // @ts-ignore
+            let souceFilePattern = sourceFilesArr?.length > 0 ? sourceFilesArr[0] : undefined;
+            // @ts-ignore
+            let directory = !!souceFilePattern ? souceFilePattern.directoryPattern : undefined;
+            
+            const filesToUnzip = zip.getEntries().filter(file => {
+                if(file.isDirectory) return;
+
+                var pathsegs = path.dirname(file.entryName).split('/');
+                if(directory && pathsegs.length >= 2 && pathsegs[1] == directory){
+                    return true;
+                }
+
+                return false;
             });
 
             filesToUnzip.forEach(file => {
-                const filePath = path.join(unzipFolder, file.entryName);
-                const directory = path.dirname(filePath);
-                if (!fs.existsSync(directory)) {
-                    fs.mkdirSync(directory, { recursive: true });
+
+
+                let entryName = file.entryName;
+                let pathsegs =entryName.split('/')
+                let language = pathsegs.shift();
+                language = language?.replace('-', '_');
+                if(this.supportLanguages?.indexOf(language??'') == -1) return;
+
+                let filename = pathsegs.pop() ?? '';
+                let filecomps = filename.split('.')[0].split('_');
+                filename = filecomps.pop() ?? '';
+                let modulename = filecomps.join('_') ?? '';
+                let moduleDir = 'banban_base';
+
+                if(modulename == 'app') {
+                    modulename = '';
+                    moduleDir = '';
                 }
-                fs.writeFileSync(filePath, file.getData());
+                
+                entryName = path.join(moduleDir, modulename, 'assets', 'locale',  `${filename}_${language}.json`);
+                
+                const filePath = path.join(unzipFolder, entryName);
+                const directory = path.dirname(filePath);
+                if (fs.existsSync(directory)) {
+                    fs.writeFileSync(filePath, file.getData());
+                }
             });
         } catch (error) {
             throw new Error(`Failed to download translations for project ${this.projectId}. ${this.getErrorMessage(error)}`);

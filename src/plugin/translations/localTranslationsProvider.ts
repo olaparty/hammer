@@ -75,7 +75,6 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
             for (let index = 0; index < matches.length; index++) {
                 const value = matches[index];
                 const startIndex = currentLine.text.indexOf(value);
-                var b = [startIndex, startIndex + value.length];
                 if (selection.start.character >= startIndex && selection.start.character <= startIndex + value.length) {
                     selectText = value;
                     break;
@@ -179,7 +178,6 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         var selection = editor.selection;
         const currentLine = editor.document.lineAt(selection.active.line);
 
-        var moduleName = packageRoot.replace(path.dirname(packageRoot)+'/', '');
         var startPos = currentLine.text.indexOf(entryValue);
 
         var start = new vscode.Position(selection.start.line, startPos);
@@ -277,7 +275,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
 
             // const packagePubspec = yaml.load(fs.readFileSync(packagePubspecPath, 'utf8'));
             var result: PackageItem[] = [];
-            this.supportLans.forEach((value, index) => {
+            this.supportLans.forEach((value) => {
                 const subpath = path.join(path.dirname(packagePubspecPath), LOCALDIR, `string_${value}.json`);
                 result.push(new PackageItem(value, subpath, subpath, vscode.TreeItemCollapsibleState.None));
             });
