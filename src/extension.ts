@@ -30,7 +30,6 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('translationProgress.refresh', () => progressProvider.refresh());
 
 
-    diagnostics.init(context);
 
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration(Constants.AUTO_REFRESH_PROPERTY)) {
@@ -47,11 +46,5 @@ export async function activate(context: vscode.ExtensionContext) {
     }
     await dartExt.activate();
 
-    context.subscriptions.push(vscode.window.onDidChangeTextEditorSelection( e => {
-        if (e.selections && e.selections.length) {
-            const flutterOutlineTreeProvider = dartExt.exports._privateApi.flutterOutlineTreeProvider;
-            const node = flutterOutlineTreeProvider!.getNodeAt(e.textEditor.document.uri, e.selections[0].start);
-            console.log(node);
-        }
-    }));
+    diagnostics.init(context, dartExt?.exports?._privateApi);
 }

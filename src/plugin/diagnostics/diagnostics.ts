@@ -6,11 +6,14 @@ import { ICodeAction } from './codeaction_interface';
 export class Diagnostics {
     private _diagnostics: vscode.DiagnosticCollection;
     private _codeActions: ICodeAction[] = [];
+    private _dartExt: any;
     constructor(readonly diagnostics?: vscode.DiagnosticCollection) {
         this._diagnostics = diagnostics ?? vscode.languages.createDiagnosticCollection("hammer");
     }
 
-    public init(context: vscode.ExtensionContext): void {
+    public init(context: vscode.ExtensionContext, dartExt: any): void {
+        this._dartExt = dartExt;
+
         this._codeActions.push(new LocalizedText());
 
         this._subscribeToDocumentChanges(context);
@@ -49,6 +52,9 @@ export class Diagnostics {
 
     private _refreshDiagnostics(doc: vscode.TextDocument): void {
         const diagnostics: vscode.Diagnostic[] = [];
+
+        // const flutterOutlineTreeProvider = _dartExt.flutterOutlineTreeProvider;
+        // const node = flutterOutlineTreeProvider!.getNodeAt(e.textEditor.document.uri, e.selections[0].start);
 
         for (let lineIndex = 0; lineIndex < doc.lineCount; lineIndex++) {
             const lineOfText = doc.lineAt(lineIndex);
