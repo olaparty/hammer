@@ -55,13 +55,19 @@ export class Diagnostics {
 
         // const flutterOutlineTreeProvider = _dartExt.flutterOutlineTreeProvider;
         // const node = flutterOutlineTreeProvider!.getNodeAt(e.textEditor.document.uri, e.selections[0].start);
+        this._codeActions.forEach((value) => {
+            var diagnostic = value.createDiagnostic(doc);
+            if(!!diagnostic) {
+                diagnostics.push(...diagnostic);
+            }
+        });
 
         for (let lineIndex = 0; lineIndex < doc.lineCount; lineIndex++) {
             const lineOfText = doc.lineAt(lineIndex);
             this._codeActions.forEach((value) => {
-                var diagnostic = value.createDiagnostic(doc, lineOfText, lineIndex);
+                var diagnostic = value.createLineDiagnostic(doc, lineOfText, lineIndex);
                 if(!!diagnostic) {
-                    diagnostics.push(diagnostic);
+                    diagnostics.push(...diagnostic);
                 }
             });
         }

@@ -85,7 +85,7 @@ export class LocalTranslationsProvider implements vscode.TreeDataProvider<Packag
         const packagePath = this._getPackagePath(editor.document.uri.path);
         const relativePackagePath = (packagePath ?? '').replace(this.workspaceRoot ?? '', '');
         const result = await vscode.window.showInputBox({
-            placeHolder: `input the key of '${selectText}'`,
+            placeHolder: `Enter the key of '${selectText}'`,
             prompt: `Save '${selectText}' into ${path.join(relativePackagePath, cnJsonRelativePath)}`,
         });
         

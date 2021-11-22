@@ -10,7 +10,7 @@ const TEXT_INSPECT = 'intl_text_inspect';
  * Provides code actions for converting :) to a smiley emoji.
  */
 export class LocalizedText implements ICodeAction {
-
+    private _textTobeLocalized: string[] = [];
     public readonly providedCodeActionKinds = [
         vscode.CodeActionKind.QuickFix
     ];
@@ -19,8 +19,7 @@ export class LocalizedText implements ICodeAction {
         // const start = range.start;
         // const lineOfText = document.lineAt(start.line);
         // var matches = lineOfText.text.match(RegExp('([\'\"](.*?)[\'\"]', 'g'));
-        // if(!matches || !matches.length) return;
-
+        // if (!matches || !matches.length) return;
 
         const replaceQuickfix = this.createFix(document, range);
         replaceQuickfix.isPreferred = true;
@@ -50,26 +49,58 @@ export class LocalizedText implements ICodeAction {
         return action;
     }
 
-    createDiagnostic(doc: vscode.TextDocument, lineOfText: vscode.TextLine, lineIndex: number): vscode.Diagnostic | undefined {
-        try {
-            var matches = lineOfText.text.match(RegExp('[\'\"](.*?)[\'\"]', 'g'));
-    
-            if(!matches || !matches.length){
-                return undefined;
-            }
-            var selectText = matches[0];
-            const startIndex = lineOfText.text.indexOf(selectText);
-            const range = new vscode.Range(lineIndex, startIndex, lineIndex, startIndex + selectText.length);
+    createLineDiagnostic(doc: vscode.TextDocument, lineOfText: vscode.TextLine, lineIndex: number): vscode.Diagnostic[] | undefined {
+        const collections: vscode.Diagnostic[] = [];
+        this._textTobeLocalized.forEach((value) => {
+            const startIndex = lineOfText.text.indexOf(value);
+            if (startIndex == -1) return;
 
+            const range = new vscode.Range(lineIndex, startIndex, lineIndex, startIndex + value.length);
 
             const diagnostic = new vscode.Diagnostic(range, "Should convert to K.dart instead",
                 vscode.DiagnosticSeverity.Warning);
             diagnostic.code = TEXT_INSPECT;
-            return diagnostic;
-        } catch (e) {
+            collections.push(diagnostic);
+        });
 
+        return collections;
+    }
+
+    createDiagnostic(doc: vscode.TextDocument): vscode.Diagnostic[] | undefined {
+        try {
+            this._textTobeLocalized = [];
+            const startTextRegx = 'Text[\\s\\n]*\\(([\\s\\n]*)([\'\"])(.*?)([\'\"])';
+            const textSpanRegx = 'TextSpan[\\s\\n]*\\(([\\s\\n]*)(text:\\s*)([\'\"])(.*?)([\'\"])';
+            const unicodeTextRegx = '[\u4e00-\u9fa5]';
+            const rawStrTRegx = '([\'\"])(.*?)([\'\"])';
+            const docText = doc.getText();
+
+            var allmatches: string[] = [];
+            var matchesText = docText.match(RegExp(startTextRegx, 'g'));
+            if (matchesText && matchesText.length > 0) {
+                allmatches = matchesText;
+            }
+
+            var matcheTexSpan = docText.match(RegExp(textSpanRegx, 'g'));
+            if (matcheTexSpan && matcheTexSpan.length > 0) {
+                allmatches.concat(matcheTexSpan);
+            }
+
+            allmatches.forEach((value) => {
+                var rawStr = value.match(RegExp(rawStrTRegx, 'g'));
+                if (rawStr && rawStr.length > 0) {
+                    var matches = rawStr[0].match(RegExp(unicodeTextRegx, 'g'));
+                    if (matches && matches.length > 0) {
+                        this._textTobeLocalized.push(rawStr[0]);
+                    }
+                }
+            });
+
+        } catch (e) {
+            console.log(e);
         }
 
         return undefined;
     }
+
 }
