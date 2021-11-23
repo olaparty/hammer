@@ -11,5 +11,6 @@ ci/
 **/tslint.json
 **/*.map
 **/*.ts
+doc/**
 webpack.config.js
 test-resources/**
