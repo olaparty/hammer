@@ -36,7 +36,7 @@ export class LocalizedText implements ICodeAction {
     private createFix(document: vscode.TextDocument, range: vscode.Range): vscode.CodeAction {
         const fix = new vscode.CodeAction(`Convert to localized text`, vscode.CodeActionKind.QuickFix);
         // fix.edit = new vscode.WorkspaceEdit();
-        fix.command = { command: CREATE_INTL_TEXT_COMMAND, title: 'convert to localized text', tooltip: 'You will enter the key for the string' };
+        fix.command = { command: CREATE_INTL_TEXT_COMMAND, arguments: [range], title: 'convert to localized text', tooltip: 'You will enter the key for the string' };
 
         // const lineOfText = document.getText(range);
         // var matches = lineOfText.match(RegExp('[\'\"](.*?)[\'\"]', 'g'));
@@ -92,7 +92,7 @@ export class LocalizedText implements ICodeAction {
                 if (rawStr && rawStr.length > 0) {
                     // var matches = rawStr[0].match(RegExp(unicodeTextRegx, 'g'));
                     // if (matches && matches.length > 0) {
-                        this._textTobeLocalized.push(rawStr[0]);
+                    this._textTobeLocalized.push(rawStr[0]);
                     // }
                 }
             });

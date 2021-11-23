@@ -9,8 +9,10 @@ const cnJsonRelativePath = 'assets/locale/string_zh_CN.json';
 class AddEntryAction {
     constructor(
         private workspaceRoot: string,
+        private args: any,
     ) { }
     async run() {
+
         var editor = vscode.window.activeTextEditor;
         if (!editor) {
             return; // No open text editor
@@ -20,9 +22,14 @@ class AddEntryAction {
             vscode.window.showInformationMessage('active document is not dart file');
             return;
         }
+        try {
+            let range = this.args && (this.args as vscode.Range);
+            editor.selection = new vscode.Selection(range.start, range.end)
+        } catch (_) { }
 
         const selection = editor.selection;
         const currentLine = editor.document.lineAt(selection.active.line);
+
         var matches = currentLine.text.match(RegExp('\'(.*?)\'', 'g'));
         if (!matches || !matches.length) {
             matches = currentLine.text.match(RegExp('\"(.*?)\"', 'g'));
@@ -195,6 +202,6 @@ class AddEntryAction {
 }
 
 
-export async function addEntry() {
-    await new AddEntryAction(vscode.workspace.rootPath ?? '').run();
+export async function addEntry(args: any) {
+    await new AddEntryAction(vscode.workspace.rootPath ?? '', args).run();
 }

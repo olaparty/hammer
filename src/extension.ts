@@ -24,7 +24,7 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(Constants.OPEN_TMS_FILE_COMMAND, fsPath => vscode.commands.executeCommand('vscode.open', vscode.Uri.file(fsPath)));
 
     vscode.commands.registerCommand('localTranslations.showEntry', args => localTranslationsProvider.showEntry(args));
-    vscode.commands.registerCommand('localTranslations.create', () => addEntry());
+    vscode.commands.registerCommand('localTranslations.create', args => addEntry(args));
     vscode.commands.registerCommand('localTranslations.download', () => downloadTranslation(configHolder));
     vscode.commands.registerCommand('localTranslations.search', () => openSearchTranslations());
 
