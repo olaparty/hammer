@@ -3,6 +3,11 @@
 
 # Hammer Visual Studio Code Plugin 
 
-The plugin allows uploading new source strings instantly to your Crowdin project, updating them back from Crowdin and downloading translations.
-
 [Get it from the VS Code Marketplace →](https://marketplace.visualstudio.com/items?itemName=zhileichen.hammer)
+
+
+## Features
+1. Support unlocalized text detection and quick fix. 
+![text_quickfix.gif](doc/text_quickfix.gif)
+
+2. Support syncing translations from crowdin.
