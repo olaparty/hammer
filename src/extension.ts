@@ -5,6 +5,7 @@ import { ProgressTreeProvider } from './plugin/progress/progressTreeProvider';
 import { LocalTranslationsProvider } from './plugin/translations/localTranslationsProvider';
 import { downloadTranslation, openSearchTranslations } from './plugin/translations/downloadTranslationsCommand';
 import { Diagnostics } from './plugin/diagnostics/diagnostics';
+import { addEntry } from './plugin/translations/addEntryAction';
 
 export async function activate(context: vscode.ExtensionContext) {
     Constants.initialize(context);
@@ -23,7 +24,7 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(Constants.OPEN_TMS_FILE_COMMAND, fsPath => vscode.commands.executeCommand('vscode.open', vscode.Uri.file(fsPath)));
 
     vscode.commands.registerCommand('localTranslations.showEntry', args => localTranslationsProvider.showEntry(args));
-    vscode.commands.registerCommand('localTranslations.create', args => localTranslationsProvider.addEntry());
+    vscode.commands.registerCommand('localTranslations.create', () => addEntry());
     vscode.commands.registerCommand('localTranslations.download', () => downloadTranslation(configHolder));
     vscode.commands.registerCommand('localTranslations.search', () => openSearchTranslations());
 

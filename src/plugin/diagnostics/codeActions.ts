@@ -16,10 +16,11 @@ export class LocalizedText implements ICodeAction {
     ];
 
     public provideCodeActions(document: vscode.TextDocument, range: vscode.Range): vscode.CodeAction[] | undefined {
-        // const start = range.start;
-        // const lineOfText = document.lineAt(start.line);
-        // var matches = lineOfText.text.match(RegExp('([\'\"](.*?)[\'\"]', 'g'));
-        // if (!matches || !matches.length) return;
+        const start = range.start;
+        const lineOfText = document.lineAt(start.line);
+        const rawStrTRegx = '([\'\"])(.*?)([\'\"])';
+        var matches = lineOfText.text.match(RegExp(rawStrTRegx, 'g'));
+        if (!matches || !matches.length) return;
 
         const replaceQuickfix = this.createFix(document, range);
         replaceQuickfix.isPreferred = true;
@@ -71,7 +72,7 @@ export class LocalizedText implements ICodeAction {
             this._textTobeLocalized = [];
             const startTextRegx = 'Text[\\s\\n]*\\(([\\s\\n]*)([\'\"])(.*?)([\'\"])';
             const textSpanRegx = 'TextSpan[\\s\\n]*\\(([\\s\\n]*)(text:\\s*)([\'\"])(.*?)([\'\"])';
-            const unicodeTextRegx = '[\u4e00-\u9fa5]';
+            // const unicodeTextRegx = '[\u4e00-\u9fa5]';
             const rawStrTRegx = '([\'\"])(.*?)([\'\"])';
             const docText = doc.getText();
 
@@ -89,10 +90,10 @@ export class LocalizedText implements ICodeAction {
             allmatches.forEach((value) => {
                 var rawStr = value.match(RegExp(rawStrTRegx, 'g'));
                 if (rawStr && rawStr.length > 0) {
-                    var matches = rawStr[0].match(RegExp(unicodeTextRegx, 'g'));
-                    if (matches && matches.length > 0) {
+                    // var matches = rawStr[0].match(RegExp(unicodeTextRegx, 'g'));
+                    // if (matches && matches.length > 0) {
                         this._textTobeLocalized.push(rawStr[0]);
-                    }
+                    // }
                 }
             });
 

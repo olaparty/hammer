@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { LanguagesModel, ProjectsGroupsModel } from '@crowdin/crowdin-api-client';
+import * as fs from 'fs';
 
 export class PathUtil {
 
@@ -128,5 +129,15 @@ export class PathUtil {
         result = path1.replace(basePath, path.sep);
         result = result.replace(new RegExp(PathUtil.PATH_SEPARATOR_REGEX + '+', 'g'), PathUtil.PATH_SEPARATOR_REGEX);
         return result;
+    }
+
+
+    static pathExists(p: string): boolean {
+        try {
+            fs.accessSync(p);
+        } catch (err) {
+            return false;
+        }
+        return true;
     }
 }
