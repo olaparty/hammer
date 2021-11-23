@@ -39,13 +39,13 @@ export async function activate(context: vscode.ExtensionContext) {
     }));
 
     // Ensure we have a Dart extension.
-    const dartExt = vscode.extensions.getExtension('Dart-Code.dart-code');
-    if (!dartExt) {
+    // const dartExt = vscode.extensions.getExtension('Dart-Code.dart-code');
+    // if (!!dartExt) {
+    //     dartExt.activate();
         // This should not happen since the Flutter extension has a dependency on the Dart one
         // but just in case, we'd like to give a useful error message.
-        throw new Error("The Dart extension is not installed, Flutter extension is unable to activate.");
-    }
-    await dartExt.activate();
+        // throw new Error("The Dart extension is not installed, Flutter extension is unable to activate.");
+    // }
 
-    diagnostics.init(context, dartExt?.exports?._privateApi);
+    diagnostics.init(context, undefined);
 }

@@ -144,7 +144,7 @@ class AddEntryAction {
 
         // check import of current k.dart
         const relativePathToRoot = path.relative(editor.document.uri.fsPath, path.join(packageRoot, 'lib'));
-        var shoudFixImport = this._shouldInsertKdart(editor.document.uri.path, relativePathToRoot);
+        var shoudFixImport = this._shoudFixImport(editor, relativePathToRoot);
 
         const textToReplace = hasParams ? `K.${entryName}([])` : `K.${entryName}`;
         const textToJson = hasParams ? `\n\t///${value}\n\tstatic String ${entryName} (List<String> args){ return R.string('${entryName}',args: args);}\n`
@@ -167,16 +167,10 @@ class AddEntryAction {
         return true;
     }
 
-    private _shouldInsertKdart(filepath: string, relativePath: string): boolean {
-        const kdartfile = fs.readFileSync(filepath, 'utf-8');
-        const lines = kdartfile.split('\n');
-
-        for (let i = 0; i < 30 && i < lines.length; i++) {
-            if (lines[i].includes(`${relativePath}/k.dart\';`)) {
-                return false;
-            }
-        }
-        return true;
+    private _shoudFixImport(editor: vscode.TextEditor, relativePath: string): boolean {
+        const text = editor.document.getText();
+        const matches = text.match(RegExp(`${relativePath}/k.dart\';`, 'g'));
+        return !matches || !matches.length;
     }
 
     private _getKDartInsertPos(filepath: string): vscode.Position {
@@ -201,6 +195,6 @@ class AddEntryAction {
 }
 
 
-export  async function addEntry() {
-    await new AddEntryAction(vscode.workspace.rootPath??'').run();
+export async function addEntry() {
+    await new AddEntryAction(vscode.workspace.rootPath ?? '').run();
 }
