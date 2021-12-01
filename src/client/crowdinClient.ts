@@ -1,4 +1,4 @@
-import Crowdin, { Credentials, ProjectsGroupsModel, SourceFilesModel } from '@crowdin/crowdin-api-client';
+import Crowdin, { Credentials, ProjectsGroupsModel, ResponseList, SourceFilesModel } from '@crowdin/crowdin-api-client';
 import * as AdmZip from 'adm-zip';
 import axios from 'axios';
 import * as fs from 'fs';
@@ -142,6 +142,30 @@ export class CrowdinClient {
     private isProjectSettings(data: any): data is ProjectsGroupsModel.ProjectSettings {
         const project = (<ProjectsGroupsModel.ProjectSettings>data);
         return project.languageMapping !== undefined || project.inContext !== undefined;
+    }
+
+    async uploadFile(
+        fileName: string,
+        fileId: number,
+        fileContent: string,
+        exportPattern: string,
+        uploadOption?: SourceFilesModel.UpdateOption,
+    ): Promise<void> {
+        try {
+            const resp = await this.crowdin.uploadStorageApi.addStorage(fileName, fileContent);
+            const storageId = resp.data.id;
+
+            await this.crowdin.sourceFilesApi.updateOrRestoreFile(this.projectId, fileId, {
+                storageId: storageId,
+                updateOption: uploadOption,
+                exportOptions: {
+                    exportPattern: exportPattern
+                }
+            });
+
+        } catch (error) {
+            throw new Error(`Failed to create/update file ${fileName} for project ${this.projectId}. ${this.getErrorMessage(error)}`);
+        }
     }
 
     /**
@@ -299,6 +323,27 @@ export class CrowdinClient {
         } catch (error) {
             throw new Error(`Failed to create/update file ${path.basename(file)} for project ${this.projectId}. ${this.getErrorMessage(error)}`);
         }
+    }
+
+    async getDirectoryFiles(dirId?: number) {
+        if(!dirId) return undefined;
+
+        const files = await this.crowdin.sourceFilesApi.withFetchAll().listProjectFiles(this.projectId, undefined, dirId);
+        return files;
+    }
+
+    /**
+     * 
+     * @param file file path in crowdin
+     * @param dirId file path directory id in crowdin
+     */
+     async getSourceFileContent(fileId: number): Promise<string> {
+        if(!fileId) return '';
+        
+        const downloadLink = await this.crowdin.sourceFilesApi.downloadFile(this.projectId, fileId);
+        const content = await axios.get(downloadLink.data.url, { responseType: 'arraybuffer' });
+
+        return content.data;
     }
 
     /**

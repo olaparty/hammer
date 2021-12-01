@@ -84,7 +84,7 @@ export class LocalizedText implements ICodeAction {
 
             var matcheTexSpan = docText.match(RegExp(textSpanRegx, 'g'));
             if (matcheTexSpan && matcheTexSpan.length > 0) {
-                allmatches.concat(matcheTexSpan);
+                allmatches = allmatches.concat(matcheTexSpan);
             }
 
             allmatches.forEach((value) => {
