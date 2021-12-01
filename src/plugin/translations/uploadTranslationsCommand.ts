@@ -74,7 +74,7 @@ const _parseUntranslateItems = (dir: string, type: string, module?: string): Tra
 };
 
 
-export const uploadTranslation = (configHolder: CrowdinConfigHolder) => {
+export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
     return CommonUtil.withProgress(
         async () => {
             try {
@@ -141,7 +141,7 @@ export const uploadTranslation = (configHolder: CrowdinConfigHolder) => {
                     await client.uploadFile(key, value.fileId, content);
                 });
 
-                vscode.window.showInformationMessage(`upload finished \n${updatedFiles.join('\n')}`);
+                vscode.window.showInformationMessage(`Upload finished \n${updatedFiles.join('\n')}`);
 
             } catch (err) {
                 ErrorHandler.handleError(err);

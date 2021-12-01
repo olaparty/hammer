@@ -3,7 +3,7 @@
     "displayName": "Hammer",
     "description": "Hammer for Visual Studio Code",
     "publisher": "zhileichen",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "license": "MIT",
     "engines": {
         "vscode": "^1.35.0"
@@ -67,7 +67,7 @@
         "commands": [
             {
                 "command": "localTranslations.create",
-                "title": "Convert to k.dart",
+                "title": "[Hammer] Convert to k.dart",
                 "icon": {
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
@@ -75,10 +75,18 @@
             },
             {
                 "command": "localTranslations.download",
-                "title": "Download translations from Crowdin",
+                "title": "[Hammer] Download translations",
                 "icon": {
                     "light": "resources/light/download.svg",
                     "dark": "resources/dark/download.svg"
+                }
+            },
+            {
+                "command": "localTranslations.upload",
+                "title": "[Hammer] Upload translations",
+                "icon": {
+                    "light": "resources/light/upload.svg",
+                    "dark": "resources/dark/upload.svg"
                 }
             },
             {
@@ -119,6 +127,16 @@
             "editor/context": [
                 {
                     "command": "localTranslations.create",
+                    "when": "editorLangId == dart",
+                    "group": "HammerGroup@0"
+                },
+                {
+                    "command": "localTranslations.download",
+                    "when": "editorLangId == dart",
+                    "group": "HammerGroup@0"
+                },
+                {
+                    "command": "localTranslations.upload",
                     "when": "editorLangId == dart",
                     "group": "HammerGroup@0"
                 }
