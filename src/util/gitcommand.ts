@@ -1,8 +1,7 @@
 import { ChildProcess, spawn } from "child_process";
-import { dirname } from "path";
-
+import { dirname, join } from "path";
+import * as vscode from 'vscode';
 import { extensions } from "vscode";
-
 import { validEditor } from "./editorvalidator";
 import { getProperty } from "./property";
 import { Logger } from "./logger";
@@ -24,6 +23,11 @@ const runGit = (
     cwd: string,
     ...args: string[]
 ): Promise<string> => execute(getGitCommand(), args, { cwd: dirname(cwd) });
+
+const runGitRaw = (
+    cwd: string,
+    ...args: string[]
+): Promise<string> => execute(getGitCommand(), args, { cwd: cwd });
 
 export const getActiveFileOrigin = async (remoteName: string): Promise<string> => {
     const activeEditor = getActiveTextEditor();
@@ -52,18 +56,20 @@ export const isGitTracked = async (
     fileName: string,
 ): Promise<boolean> => !!await runGit(fileName, "rev-parse", "--git-dir");
 
-export const diffProcess = (fileName: string): ChildProcess => {
-    const args = ["diff", "-w", fileName];
-
-    if (getProperty("ignoreWhitespace")) {
-        args.splice(1, 0, "-w");
+export const diffProcess = async (fileName: string, args?: ReadonlyArray<string>,  cwd?: string | undefined): Promise<string> => {
+    if(!cwd){
+        cwd = vscode.workspace.rootPath;
+    }
+    if(!cwd) {
+        return "";
+    }
+    if(!args) {
+        args = [];
     }
 
-    Logger.write("command", `${getGitCommand()} ${args.join(" ")}`);
+    args = ["diff", ...args, fileName];
 
-    return spawn(getGitCommand(), args, {
-        cwd: dirname(fileName),
-    });
+    return await runGitRaw(cwd, ...args);
 }
 
 export const blameProcess = (fileName: string): ChildProcess => {

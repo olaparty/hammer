@@ -8,6 +8,8 @@ export class Constants {
     static readonly PLUGIN_VERSION = '1.0.3';
     static readonly CLIENT_RETRIES = 5;
     static readonly CLIENT_RETRY_WAIT_INTERVAL_MS = 750;
+    static ROOT_MODULE_NAME = 'app';
+    static DEFAULT_MODULE_DIR = 'banban_base';
     static VSCODE_VERSION: string;
 
     static initialize(context: vscode.ExtensionContext) {

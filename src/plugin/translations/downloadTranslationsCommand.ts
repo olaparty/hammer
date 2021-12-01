@@ -9,6 +9,8 @@ import { CrowdinConfigHolder } from '../crowdinConfigHolder';
 import { CommonUtil } from '../../util/commonUtil';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
+import { diffProcess } from '../../util/gitcommand';
+import { Constants } from '../../constants';
 
 const asyncGlob = util.promisify(glob);
 
@@ -16,13 +18,10 @@ export const openSearchTranslations = () => {
     vscode.commands.executeCommand('search.action.openNewEditorToSide', '**/assets/locale/*.json');
 }
 
-
-
 export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
     return CommonUtil.withProgress(
         async () => {
             try {
-
 
                 var config: any;
                 var workspace: any;
@@ -56,9 +55,12 @@ export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
                 );
                 const sourceFilesArr = await Promise.all(promises);
                 //@ts-ignore
-                const results = await client.download(root, sourceFilesArr);
+                await client.download(root, sourceFilesArr);
 
-                vscode.window.showInformationMessage(`sync finished \n${results.join('\n')}`);
+                const rootChanges = await diffProcess("**/assets/locale/*.json", ["-w", "--name-only"]);
+                const baseChanges = await diffProcess("**/assets/locale/*.json", ["-w", "--name-only"], path.join(vscode.workspace.rootPath??'', Constants.DEFAULT_MODULE_DIR));
+                
+                vscode.window.showInformationMessage(`sync finished \n${rootChanges}\n${baseChanges}`);
             } catch (err) {
                 ErrorHandler.handleError(err);
             }

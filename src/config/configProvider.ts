@@ -12,7 +12,7 @@ const asyncReadFile = util.promisify(fs.readFile);
 
 export class ConfigProvider {
 
-    private static readonly crowdinFileNames = ['crowdin.yml', 'crowdin.yaml'];
+    private static readonly crowdinFileNames = ['hammer.yaml', 'crowdin.yml', 'crowdin.yaml'];
 
     constructor(public readonly workspace: vscode.WorkspaceFolder) { }
 

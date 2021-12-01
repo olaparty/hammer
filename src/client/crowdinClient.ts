@@ -80,7 +80,6 @@ export class CrowdinClient {
             let results: string[] = [];
             filesToUnzip.forEach(file => {
 
-
                 let entryName = file.entryName;
                 let pathsegs =entryName.split('/')
                 let language = pathsegs.shift();
@@ -91,9 +90,9 @@ export class CrowdinClient {
                 let filecomps = filename.split('.')[0].split('_');
                 filename = filecomps.pop() ?? '';
                 let modulename = filecomps.join('_') ?? '';
-                let moduleDir = 'banban_base';
+                let moduleDir = Constants.DEFAULT_MODULE_DIR;
 
-                if(modulename == 'app') {
+                if(modulename == Constants.ROOT_MODULE_NAME) {
                     modulename = '';
                     moduleDir = '';
                 }
