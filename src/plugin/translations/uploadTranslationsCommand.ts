@@ -114,6 +114,15 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
                         fileMap.set(value.fileName, value);
                     }
                 });
+                const answer = await vscode.window.showInformationMessage(
+                  `Upload local changes\n${Array.from(fileMap.keys()).join('\n')}`,
+                  {modal: true},
+                  ...["Yes", "No"]
+                );
+                
+                if(answer != 'Yes') {
+                    return;
+                }
 
                 const client = new CrowdinClient(
                     config.projectId, config.apiKey, config.branch
