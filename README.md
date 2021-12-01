@@ -11,3 +11,4 @@
 ![text_quickfix.gif](doc/text_quickfix.gif)
 
 2. Support syncing translations from crowdin.
+3. Support uploading translations to crowdin.

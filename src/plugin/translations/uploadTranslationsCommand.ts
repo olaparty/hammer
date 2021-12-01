@@ -139,7 +139,7 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
                 }
 
                 const updatedFiles: string[] = [];
-                fileMap.forEach((value, key) => {
+                fileMap.forEach(async (value, key) => {
                     updatedFiles.push(value.localPath.replace(root, ''));
                     // TODO: merge remote content.
                     // await client.getSourceFileContent(fileid);
