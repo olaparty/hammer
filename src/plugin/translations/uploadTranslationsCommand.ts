@@ -140,12 +140,14 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
 
                 const updatedFiles: string[] = [];
                 fileMap.forEach(async (value, key) => {
+                    if(!value.fileId) return;
+                    
                     updatedFiles.push(value.localPath.replace(root, ''));
                     // TODO: merge remote content.
                     // await client.getSourceFileContent(fileid);
                     // merge content.
-
-                    const content = fs.readFileSync(value.localPath, 'utf8')
+                    
+                    const content = fs.readFileSync(value.localPath, 'binary') // alias as Latin-1 stands for ISO-8859-1. 
                     //@ts-ignore
                     await client.uploadFile(key, value.fileId, content);
                 });
