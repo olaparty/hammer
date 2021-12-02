@@ -13,7 +13,8 @@ export const execute = async (
 
     try {
         execution = execFile(command, args, { ...options, encoding: "utf8" });
-    } catch (err : any) {
+    } catch (err) {
+        //@ts-ignore
         Logger.error(err);
         return "";
     }
