@@ -54,6 +54,7 @@ export class Diagnostics {
 
     private _refreshDiagnostics(doc: vscode.TextDocument): void {
         const diagnostics: vscode.Diagnostic[] = [];
+        this._diagnostics.delete(doc.uri);
 
         // const flutterOutlineTreeProvider = _dartExt.flutterOutlineTreeProvider;
         // const node = flutterOutlineTreeProvider!.getNodeAt(e.textEditor.document.uri, e.selections[0].start);
