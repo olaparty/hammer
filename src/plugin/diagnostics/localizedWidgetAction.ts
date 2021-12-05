@@ -12,7 +12,7 @@ const WIDGET_FIX_MESSAGE = "use localized widget instead";
 /**
  * Provides code actions for converting :) to a smiley emoji.
  */
-export class LocalizedWidget implements ICodeAction {
+export class LocalizedWidgetAction implements ICodeAction {
     private _widgetTobeLocalized: string[] = [];
     private _widgetDetect: string[] = ['EdgeInsets', 'Positioned', 'BorderRadius', 'Alignment'];
     private _wdigetDetectRegex: string[] = [
@@ -58,7 +58,7 @@ export class LocalizedWidget implements ICodeAction {
 
     createLineDiagnostic(doc: vscode.TextDocument, lineOfText: vscode.TextLine, lineIndex: number): vscode.Diagnostic[] | undefined {
         const collections: vscode.Diagnostic[] = [];
-
+        
         this._widgetTobeLocalized.forEach((value) => {
             const lineno = value.split('\n').length;
             console.log(value);
@@ -88,7 +88,8 @@ export class LocalizedWidget implements ICodeAction {
 
     createDiagnostic(doc: vscode.TextDocument): vscode.Diagnostic[] | undefined {
         if (doc.fileName.includes('packages/flutter/lib/src')) return undefined;
-
+        this._widgetTobeLocalized = [];
+        
         try {
             const docText = doc.getText();
 

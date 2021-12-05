@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { LocalizedText } from './codeActions';
-import { LocalizedWidget } from './localizedWidget';
+import { LocalizedTextAction } from './localizedTextAction';
+import { LocalizedWidgetAction } from './localizedWidgetAction';
 import { ICodeAction } from './codeaction_interface';
 
 
@@ -15,8 +15,8 @@ export class Diagnostics {
     public init(context: vscode.ExtensionContext, dartExt: any): void {
         this._dartExt = dartExt;
 
-        this._codeActions.push(new LocalizedText());
-        this._codeActions.push(new LocalizedWidget());
+        this._codeActions.push(new LocalizedTextAction());
+        this._codeActions.push(new LocalizedWidgetAction());
 
         this._subscribeToDocumentChanges(context);
 
