@@ -68,6 +68,8 @@ export class LocalizedText implements ICodeAction {
     }
 
     createDiagnostic(doc: vscode.TextDocument): vscode.Diagnostic[] | undefined {
+        if(doc.fileName.includes('packages/flutter/lib/src')) return undefined;
+
         try {
             this._textTobeLocalized = [];
             const startTextRegx = 'Text[\\s\\n]*\\(([\\s\\n]*)([\'\"])(.*?)([\'\"])';
