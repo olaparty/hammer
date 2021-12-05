@@ -47,10 +47,10 @@ const WIDGET_INSPECT = 'intl_widget_inspect';
         // fix.command = { command: CREATE_INTL_TEXT_COMMAND, arguments: [range], title: `Convert to ${widgetName}Directional`, tooltip: '' };
         let rangeText = document.getText(range);
         rangeText = rangeText.replace(widgetName,  `${widgetName}Directional`);
-        rangeText = rangeText.replace('/left:/g', 'start:');
-        rangeText = rangeText.replace('/right:/g', 'end:');
-        rangeText = rangeText.replace('/Left/g', 'Start');
-        rangeText = rangeText.replace('/Right/g', 'End');
+        rangeText = rangeText.replace(new RegExp('left:', 'g'), 'start:');
+        rangeText = rangeText.replace(new RegExp('right:', 'g'), 'end:');
+        rangeText = rangeText.replace(new RegExp('Left', 'g'), 'Start');
+        rangeText = rangeText.replace(new RegExp('Right', 'g'), 'End');
 
         fix.edit.replace(document.uri,range, rangeText);
         
