@@ -58,10 +58,49 @@ const _parseUntranslateItems = (dir: string, type: string, module?: string): Tra
 
                 twMap[key] = cnMap[key];
             });
+        }
 
-            //// TODO: save changes into tw files
-            // var newJsonData = JSON.stringify(twMap, null, 4);
-            // fs.writeFileSync(twfilepath, newJsonData, 'utf-8');
+    } catch (e) {
+        console.error(e);
+    }
+
+    return untranslateItems
+
+};
+
+
+const _saveUpdatedItems = (localPath: string): TranslateItem[] => {
+    const untranslateItems: TranslateItem[] = [];
+    try {
+        const twLocalPath = localPath.replace('zh_CN', 'zh_TW');
+        const cnfilepath = localPath;
+        const twfilepath = twLocalPath;
+
+        if (!fs.existsSync(cnfilepath)) return untranslateItems;
+
+        const cnMap = JSON.parse(fs.readFileSync(cnfilepath, 'utf8'));
+        const twMap = JSON.parse(fs.readFileSync(twfilepath, 'utf8'));
+
+        const isTypeArray = path.basename(localPath).includes('array');
+
+        const twKeys = Object.keys(twMap);
+        const cnKeys = Object.keys(cnMap);
+        const difference = cnKeys.filter(key => {
+            var notIncludes = !twKeys.includes(key);
+            if (!notIncludes && isTypeArray) {
+                notIncludes = (twMap[key].length != cnMap[key].length);
+            }
+            return notIncludes;
+        });
+
+        if (!!difference && difference.length > 0) {
+            difference.forEach((key, _) => {
+
+                twMap[key] = cnMap[key];
+            });
+
+            var newJsonData = JSON.stringify(twMap, null, 4);
+            fs.writeFileSync(twfilepath, newJsonData, 'utf-8');
         }
         
 
@@ -150,6 +189,9 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
                     const content = fs.readFileSync(value.localPath, 'binary') // alias as Latin-1 stands for ISO-8859-1. 
                     //@ts-ignore
                     await client.uploadFile(key, value.fileId, content);
+                    
+                    // save updated record
+                    _saveUpdatedItems(value.localPath);
                 });
 
                 vscode.window.showInformationMessage(`Upload finished \n${updatedFiles.join('\n')}`);
