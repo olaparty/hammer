@@ -16,6 +16,7 @@ const jsonRelativePath = 'assets/locale/%type%_%lan%.json';
 interface TranslateItem {
     fileName: string;
     localPath: string;
+    remotePath?: string;
     name: string;
     value: string;
     type: string;
@@ -174,25 +175,29 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
                         //@ts-ignore
                         const foundFile = files.data.find(f => f.data.name === key);
                         value.fileId = foundFile?.data.id;
+                        value.remotePath = foundFile?.data.path;
                     });
                 }
 
                 const updatedFiles: string[] = [];
-                fileMap.forEach(async (value, key) => {
-                    if(!value.fileId) return;
+                const keys = fileMap.keys();
+                for (const key of keys) {
+                    const value = fileMap.get(key);
+
+                    if(!value || !value.fileId || !value.remotePath) return;
                     
-                    updatedFiles.push(value.localPath.replace(root, ''));
+                    updatedFiles.push(key);
                     // TODO: merge remote content.
                     // await client.getSourceFileContent(fileid);
                     // merge content.
                     
-                    const content = fs.readFileSync(value.localPath, 'binary') // alias as Latin-1 stands for ISO-8859-1. 
+                    const rawData = fs.readFileSync(value.localPath) // alias as Latin-1 stands for ISO-8859-1. 
                     //@ts-ignore
-                    await client.uploadFile(key, value.fileId, content);
+                    await client.uploadFile(key, value.fileId, rawData);
                     
                     // save updated record
                     _saveUpdatedItems(value.localPath);
-                });
+                }
 
                 vscode.window.showInformationMessage(`Upload finished \n${updatedFiles.join('\n')}`);
 

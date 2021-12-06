@@ -147,17 +147,17 @@ export class CrowdinClient {
     async uploadFile(
         fileName: string,
         fileId: number,
-        fileContent: string,
+        fileRawData: Buffer, // binary file data
         exportPattern: string,
         uploadOption?: SourceFilesModel.UpdateOption,
     ): Promise<void> {
         try {
-            const resp = await this.crowdin.uploadStorageApi.addStorage(fileName, fileContent);
+            const resp = await this.crowdin.uploadStorageApi.addStorage(fileName, fileRawData);
             const storageId = resp.data.id;
 
             await this.crowdin.sourceFilesApi.updateOrRestoreFile(this.projectId, fileId, {
                 storageId: storageId,
-                updateOption: uploadOption,
+                updateOption: SourceFilesModel.UpdateOption.KEEP_TRANSLATIONS_AND_APPROVALS,
                 exportOptions: {
                     exportPattern: exportPattern
                 }
