@@ -52,7 +52,7 @@ export class Diagnostics {
         );
     }
 
-    private _refreshDiagnostics(doc: vscode.TextDocument): void {
+    private _refreshDiagnostics(doc: vscode.TextDocument): void {        
         const diagnostics: vscode.Diagnostic[] = [];
         this._diagnostics.delete(doc.uri);
 

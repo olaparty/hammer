@@ -182,6 +182,7 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
                 const updatedFiles: string[] = [];
                 const keys = fileMap.keys();
                 for (const key of keys) {
+                    // TODO: use promise to decrease the uploading duration
                     const value = fileMap.get(key);
 
                     if(!value || !value.fileId || !value.remotePath) return;

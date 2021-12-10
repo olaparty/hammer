@@ -61,7 +61,6 @@ export class LocalizedWidgetAction implements ICodeAction {
         
         this._widgetTobeLocalized.forEach((value) => {
             const lineno = value.split('\n').length;
-            console.log(value);
             let lineText = lineOfText.text;
             if (lineno > 1) {
                 lineText = doc.getText(new vscode.Range(lineOfText.range.start, new vscode.Position(lineIndex + lineno, 0)));
