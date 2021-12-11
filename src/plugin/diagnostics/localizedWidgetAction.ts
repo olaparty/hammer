@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { CommonUtil } from '../../util/commonUtil';
 import { ICodeAction } from './codeaction_interface';
 
 const CREATE_INTL_TEXT_COMMAND = 'int_widget_replace';
@@ -59,6 +60,8 @@ export class LocalizedWidgetAction implements ICodeAction {
     createLineDiagnostic(doc: vscode.TextDocument, lineOfText: vscode.TextLine, lineIndex: number): vscode.Diagnostic[] | undefined {
         const collections: vscode.Diagnostic[] = [];
         
+        const rangeMap = new Map<string, boolean>();
+
         this._widgetTobeLocalized.forEach((value) => {
             const lineno = value.split('\n').length;
             let lineText = lineOfText.text;
@@ -73,6 +76,10 @@ export class LocalizedWidgetAction implements ICodeAction {
             if (lineno > 1) {
                 range = new vscode.Range(lineIndex, startIndex, lineIndex + lineno, 0);
             }
+            const rangeKey = CommonUtil.keyFromRange(range);
+            const exists = rangeMap.get(rangeKey);
+            if(exists) return;
+            rangeMap.set(rangeKey, true)
 
             const diagnostic = new vscode.Diagnostic(range, WIDGET_FIX_MESSAGE,
                 vscode.DiagnosticSeverity.Error);

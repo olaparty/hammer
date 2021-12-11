@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { CommonUtil } from '../../util/commonUtil';
 import { ICodeAction } from './codeaction_interface';
 
 const CREATE_INTL_TEXT_COMMAND = 'localTranslations.create';
@@ -45,12 +46,19 @@ export class LocalizedTextAction implements ICodeAction {
 
     createLineDiagnostic(doc: vscode.TextDocument, lineOfText: vscode.TextLine, lineIndex: number): vscode.Diagnostic[] | undefined {
         const collections: vscode.Diagnostic[] = [];
+        const rangeMap = new Map<string, boolean>();
+
+
         this._textTobeLocalized.forEach((value) => {
             const startIndex = lineOfText.text.indexOf(value);
             if (startIndex == -1) return;
 
             const range = new vscode.Range(lineIndex, startIndex, lineIndex, startIndex + value.length);
-
+            const rangeKey = CommonUtil.keyFromRange(range);
+            const exists = rangeMap.get(rangeKey);
+            if(exists) return;
+            rangeMap.set(rangeKey, true)
+            
             const diagnostic = new vscode.Diagnostic(range, "Should convert to K.dart instead",
                 vscode.DiagnosticSeverity.Warning);
             diagnostic.code = TEXT_INSPECT;

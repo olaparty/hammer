@@ -18,4 +18,8 @@ export class CommonUtil {
             );
         });
     }
+
+    static keyFromRange(range : vscode.Range) : string {
+        return `${range.start.line}-${range.start.character}-${range.end.line}-${range.end.character}`;
+    }
 }
