@@ -7,6 +7,7 @@ import { ICodeAction } from './codeaction_interface';
 export class Diagnostics {
     private _diagnostics: vscode.DiagnosticCollection;
     private _codeActions: ICodeAction[] = [];
+    private _delayTimeout: NodeJS.Timeout | undefined;
     private _dartExt: any;
     constructor(readonly diagnostics?: vscode.DiagnosticCollection) {
         this._diagnostics = diagnostics ?? vscode.languages.createDiagnosticCollection("hammer");
@@ -52,7 +53,16 @@ export class Diagnostics {
         );
     }
 
-    private _refreshDiagnostics(doc: vscode.TextDocument): void{        
+
+    private _refreshDiagnostics(doc: vscode.TextDocument): void{     
+        if(this._delayTimeout) clearTimeout(this._delayTimeout);
+
+        this._delayTimeout = setTimeout(() => {
+            this._processDoc(doc);
+        }, 500);  
+    }
+
+    private _processDoc(doc: vscode.TextDocument) {
         const diagnostics: vscode.Diagnostic[] = [];
         this._diagnostics.delete(doc.uri);
 

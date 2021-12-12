@@ -11,11 +11,11 @@ const TEXT_INSPECT = 'intl_text_inspect';
  * Provides code actions for converting :) to a smiley emoji.
  */
 export class LocalizedTextAction implements ICodeAction {
-    private _textTobeLocalized: string[] = [];
-    private _textDetectRegex: string[] = [
-        'Text[\\s\\n]*\\(([\\s\\n]*)([\'\"])(.*?)([\'\"])',
-        'TextSpan[\\s\\n]*\\(([\\s\\n]*)(text:\\s*)([\'\"])(.*?)([\'\"])',
+    private _textDetectRegex: RegExp[] = [
+        /Text[\s\n]*\(([\s\n]*)(['"])(.*?)(['"])/g,
+        /TextSpan[\s\n]*\(([\s\n]*)(text:\s*)(['"])(.*?)(['"])/g,
     ];
+
     public readonly providedCodeActionKinds = [
         vscode.CodeActionKind.QuickFix
     ];
@@ -46,49 +46,36 @@ export class LocalizedTextAction implements ICodeAction {
 
     createLineDiagnostic(doc: vscode.TextDocument, lineOfText: vscode.TextLine, lineIndex: number): vscode.Diagnostic[] | undefined {
         const collections: vscode.Diagnostic[] = [];
-        const rangeMap = new Map<string, boolean>();
-
-
-        this._textTobeLocalized.forEach((value) => {
-            const startIndex = lineOfText.text.indexOf(value);
-            if (startIndex == -1) return;
-
-            const range = new vscode.Range(lineIndex, startIndex, lineIndex, startIndex + value.length);
-            const rangeKey = CommonUtil.keyFromRange(range);
-            const exists = rangeMap.get(rangeKey);
-            if(exists) return;
-            rangeMap.set(rangeKey, true)
-            
-            const diagnostic = new vscode.Diagnostic(range, "Should convert to K.dart instead",
-                vscode.DiagnosticSeverity.Warning);
-            diagnostic.code = TEXT_INSPECT;
-            collections.push(diagnostic);
-        });
-
         return collections;
     }
 
     createDiagnostic(doc: vscode.TextDocument): vscode.Diagnostic[] | undefined {
         if (doc.fileName.includes('packages/flutter/lib/src')) return undefined;
+        const collections: vscode.Diagnostic[] = [];
 
         try {
-            this._textTobeLocalized = [];
-            // const unicodeTextRegx = '[\u4e00-\u9fa5]';
-            const rawStrTRegx = '([\'\"])(.*?)([\'\"])';
             const docText = doc.getText();
-
             for (const textRegex of this._textDetectRegex) {
-                var matchesText = docText.match(RegExp(textRegex, 'g'));
-                if (matchesText && matchesText.length > 0) {
-                    for (const text of matchesText) {
-                        var rawStr = text.match(RegExp(rawStrTRegx, 'g'));
-                        if (rawStr && rawStr.length > 0) {
-                            // var matches = rawStr[0].match(RegExp(unicodeTextRegx, 'g'));
-                            // if (matches && matches.length > 0) {
-                            this._textTobeLocalized.push(rawStr[0]);
-                            // }
-                        }
+                let match;
+                while (match = textRegex.exec(docText)) {
+                    const matchText = match[0];
+                    const rawStrRegex = /(['"])(.*?)(['"])/g;
+                    const rawStr = rawStrRegex.exec(matchText);
+                    let offset = 0;
+                    if (rawStr) {
+                        offset = rawStr.index;
                     }
+
+                    const startPos = doc.positionAt(match.index + offset);
+                    const endPos = doc.positionAt(match.index + matchText.length);
+                    
+                    collections.push({
+                        code: TEXT_INSPECT,
+                        message: 'Should convert to K.dart instead',
+                        range: new vscode.Range(startPos, endPos),
+                        severity: vscode.DiagnosticSeverity.Warning,
+                        source: '[hammer]'
+                    });
                 }
             }
 
@@ -96,7 +83,7 @@ export class LocalizedTextAction implements ICodeAction {
             console.log(e);
         }
 
-        return undefined;
+        return collections;
     }
 
 }

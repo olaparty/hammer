@@ -14,13 +14,12 @@ const WIDGET_FIX_MESSAGE = "use localized widget instead";
  * Provides code actions for converting :) to a smiley emoji.
  */
 export class LocalizedWidgetAction implements ICodeAction {
-    private _widgetTobeLocalized: string[] = [];
     private _widgetDetect: string[] = ['EdgeInsets', 'Positioned', 'BorderRadius', 'Alignment'];
-    private _wdigetDetectRegex: string[] = [
-        'EdgeInsets\\.([a-z])\\w+(\\s)*\\(\\n*(\\s*(.*?)(\\s*left\\s*:|\\s*right\\s*:)(.*?))+\\)',
-        'Positioned(\\s)*\\(\\n*((\\s*)((left:|right:)|(.*?))(.*?),)+',
-        'BorderRadius.only\\((\\n*(\\s*)((Left:|Right:)|(.*?))(.*?),)+?(\\s*\\),)',
-        'Alignment.(center|top|bottom)+(Left|Right)+',
+    private _wdigetDetectRegex: RegExp[] = [
+        /EdgeInsets\.([a-z])\w+(\s)*\(\n*(\s*(.*?)(\s*left\s*:|\s*right\s*:)(.*?))+\)/g,
+        /Positioned(\s)*\(\n*((\s*)((left:|right:)|(.*?))(.*?),)+/g,
+        /BorderRadius.only\((\n*(\s*)((Left:|Right:)|(.*?))(.*?),)+?(\s*\),)/g,
+        /Alignment.(center|top|bottom)+(Left|Right)+/g,
     ];
 
     public readonly providedCodeActionKinds = [
@@ -59,50 +58,32 @@ export class LocalizedWidgetAction implements ICodeAction {
 
     createLineDiagnostic(doc: vscode.TextDocument, lineOfText: vscode.TextLine, lineIndex: number): vscode.Diagnostic[] | undefined {
         const collections: vscode.Diagnostic[] = [];
-        
-        const rangeMap = new Map<string, boolean>();
-
-        this._widgetTobeLocalized.forEach((value) => {
-            const lineno = value.split('\n').length;
-            let lineText = lineOfText.text;
-            if (lineno > 1) {
-                lineText = doc.getText(new vscode.Range(lineOfText.range.start, new vscode.Position(lineIndex + lineno, 0)));
-            }
-
-            const startIndex = lineText.indexOf(value);
-            if (startIndex == -1) return;
-
-            let range = new vscode.Range(lineIndex, startIndex, lineIndex, startIndex + value.length);
-            if (lineno > 1) {
-                range = new vscode.Range(lineIndex, startIndex, lineIndex + lineno, 0);
-            }
-            const rangeKey = CommonUtil.keyFromRange(range);
-            const exists = rangeMap.get(rangeKey);
-            if(exists) return;
-            rangeMap.set(rangeKey, true)
-
-            const diagnostic = new vscode.Diagnostic(range, WIDGET_FIX_MESSAGE,
-                vscode.DiagnosticSeverity.Error);
-            diagnostic.code = WIDGET_INSPECT;
-            
-            collections.push(diagnostic);
-        });
-        
 
         return collections;
     }
 
     createDiagnostic(doc: vscode.TextDocument): vscode.Diagnostic[] | undefined {
         if (doc.fileName.includes('packages/flutter/lib/src')) return undefined;
-        this._widgetTobeLocalized = [];
-        
+        const collections: vscode.Diagnostic[] = [];
+
         try {
             const docText = doc.getText();
+            for (const textRegex of this._wdigetDetectRegex) {
+                let match;
+                while (match = textRegex.exec(docText)) {
+                    const matchText = match[0];
+                    let offset = 0;
 
-            for (const widgetRegex of this._wdigetDetectRegex) {
-                var matchesText = docText.match(RegExp(widgetRegex, 'g'));
-                if (matchesText && matchesText.length > 0) {
-                    this._widgetTobeLocalized.push(...matchesText);
+                    const startPos = doc.positionAt(match.index + offset);
+                    const endPos = doc.positionAt(match.index + matchText.length);
+                    
+                    collections.push({
+                        code: WIDGET_FIX_MESSAGE,
+                        message: WIDGET_FIX_MESSAGE,
+                        range: new vscode.Range(startPos, endPos),
+                        severity: vscode.DiagnosticSeverity.Error,
+                        source: '[hammer]'
+                    });
                 }
             }
 
@@ -110,6 +91,6 @@ export class LocalizedWidgetAction implements ICodeAction {
             console.log(e);
         }
 
-        return undefined;
+        return collections;
     }
 }
