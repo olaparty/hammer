@@ -42,11 +42,13 @@ files:
 	- Run the extension in a new VS Code window
 
 ## Features
-1. 未翻译的文本检测和一键修复
+- 基于proto生成dart model和API代码
+![proto2dart.gif](doc/proto2dart.gif)
+- 未翻译的文本检测和一键修复
 ![text_quickfix.gif](doc/text_quickfix.gif)
-2. 自定义规则检测不合规控件使用并一键修复 
+- 自定义规则检测不合规控件使用并一键修复 
 ![widget_quickfix.gif](doc/widget_quickfix.gif)
-3. 一键同步crowdin的翻译文本到本地项目
+- 一键同步crowdin的翻译文本到本地项目
 ![download_intl.gif](doc/download_intl.gif)
-4. 一键上传待翻译文本到crowdin
+- 一键上传待翻译文本到crowdin
 ![upload_intl.gif](doc/upload_intl.gif)
