@@ -7,6 +7,7 @@ import { downloadTranslation, openSearchTranslations } from './plugin/translatio
 import { Diagnostics } from './plugin/diagnostics/diagnostics';
 import { addEntry } from './plugin/translations/addEntryAction';
 import { uploadTranslations } from './plugin/translations/uploadTranslationsCommand';
+import { genProtoCommand } from './plugin/generator/protoGenerator';
 
 export async function activate(context: vscode.ExtensionContext) {
     Constants.initialize(context);
@@ -31,7 +32,7 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('localTranslations.search', () => openSearchTranslations());
 
     vscode.commands.registerCommand('translationProgress.refresh', () => progressProvider.refresh());
-
+    vscode.commands.registerCommand('generator.proto', args => genProtoCommand(args));
 
 
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {

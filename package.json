@@ -90,6 +90,10 @@
                 }
             },
             {
+                "command": "generator.proto",
+                "title": "[Hammer] generate dart"
+            },
+            {
                 "command": "localTranslations.search",
                 "title": "Search translations in siderbar",
                 "icon": {
@@ -126,18 +130,23 @@
             ],
             "editor/context": [
                 {
+                    "command": "generator.proto",
+                    "when": "editorTextFocus && resourceExtname == .proto",
+                    "group": "HammerGroup@0"
+                },
+                {
                     "command": "localTranslations.create",
-                    "when": "editorLangId == dart",
+                    "when": "editorTextFocus && editorLangId == dart",
                     "group": "HammerGroup@0"
                 },
                 {
                     "command": "localTranslations.download",
-                    "when": "editorLangId == dart",
+                    "when": "editorTextFocus && editorLangId == dart",
                     "group": "HammerGroup@0"
                 },
                 {
                     "command": "localTranslations.upload",
-                    "when": "editorLangId == dart",
+                    "when": "editorTextFocus && editorLangId == dart",
                     "group": "HammerGroup@0"
                 }
             ]

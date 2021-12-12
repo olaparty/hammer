@@ -25,5 +25,11 @@ export const execute = async (
         data += chunk;
     }
 
+    // let error = "";
+
+    // for await (const chunk of execution?.stderr ?? []) {
+    //     error += chunk;
+    // }
+
     return data.trim();
 }
