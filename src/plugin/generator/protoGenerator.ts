@@ -47,6 +47,6 @@ export const genProtoCommand = (args: any) => {
                 ErrorHandler.handleError(err);
             }
         },
-        `Downloading translations...`
+        `Generating...`
     );
 };
