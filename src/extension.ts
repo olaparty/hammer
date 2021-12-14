@@ -33,6 +33,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand('translationProgress.refresh', () => progressProvider.refresh());
     vscode.commands.registerCommand('generator.proto', args => genProtoCommand(args));
+    vscode.commands.registerCommand('generator.proto.update', args => {
+        const uri = args as vscode.Uri;
+        const newUri = vscode.Uri.file(uri.fsPath.replace('.twirp.dart', '.proto'));
+        genProtoCommand(newUri)
+    });
 
 
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {

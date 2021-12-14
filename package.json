@@ -3,7 +3,7 @@
     "displayName": "Hammer",
     "description": "Hammer for Visual Studio Code",
     "publisher": "zhileichen",
-    "version": "1.3.2",
+    "version": "1.3.3",
     "license": "MIT",
     "engines": {
         "vscode": "^1.35.0"
@@ -94,6 +94,10 @@
                 "title": "[Hammer] generate dart"
             },
             {
+                "command": "generator.proto.update",
+                "title": "[Hammer] re-generate dart"
+            },
+            {
                 "command": "localTranslations.search",
                 "title": "Search translations in siderbar",
                 "icon": {
@@ -135,18 +139,23 @@
                     "group": "HammerGroup@0"
                 },
                 {
+                    "command": "generator.proto.update",
+                    "when": "editorTextFocus && resourceFilename =~ /.twirp.dart/",
+                    "group": "HammerGroup@0"
+                },
+                {
                     "command": "localTranslations.create",
-                    "when": "editorTextFocus && editorLangId == dart",
+                    "when": "editorTextFocus && editorLangId == dart && resourcePath =~  /^((?!packages/flutter/lib/src)(?!twirp.dart).)*$/",
                     "group": "HammerGroup@0"
                 },
                 {
                     "command": "localTranslations.download",
-                    "when": "editorTextFocus && editorLangId == dart",
+                    "when": "editorTextFocus && editorLangId == dart && resourcePath =~ /^((?!packages/flutter/lib/src)(?!twirp.dart).)*$/",
                     "group": "HammerGroup@0"
                 },
                 {
                     "command": "localTranslations.upload",
-                    "when": "editorTextFocus && editorLangId == dart",
+                    "when": "editorTextFocus && editorLangId == dart && resourcePath =~  /^((?!packages/flutter/lib/src)(?!twirp.dart).)*$/",
                     "group": "HammerGroup@0"
                 }
             ]
