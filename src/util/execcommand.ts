@@ -35,7 +35,10 @@ export const execute = async (
             error += chunk;
         }
 
-        throw new Error(error);
+        if (error.length > 0) {
+            throw new Error(error);
+        }
+
     }
 
 

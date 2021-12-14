@@ -26,7 +26,7 @@ const protocAction = async (binPath: string, fileName: string, args?: ReadonlyAr
 const runProtoc = (
     binPath: string,
     ...args: string[]
-): Promise<string> => execute(binPath, args, {}, false);
+): Promise<string> => execute(binPath ?? "/usr/local/bin/protoc", args, {}, false);
 
 const getProtcBin = (
 ): Promise<string> => execute('which', ['protoc'], {});
@@ -40,28 +40,35 @@ export const genProtoCommand = (args: any) => {
             try {
                 const activeEditor = getActiveTextEditor();
                 if (!validEditor(activeEditor)) {
-                    return "0";
+                    return ;
                 }
+
+                let currentFsPath = activeEditor.document.uri.fsPath;
+                if(args && args.fsPath && path.extname(args.fsPath) == '.proto') {
+                    currentFsPath = args.fsPath
+                }
+                
                 const protocBin = await getProtcBin();
-                if (protocBin == '') {
+                if (protocBin === '') {
                     const answer = await vscode.window.showInformationMessage(
                         `Failed: protoc command is missing\nwould you like to install protobuf, otherwise you can install manually by "brew install protobuf"`,
                         { modal: true },
                         ...["Install"]
                     );
-                    if (answer == 'Install') {
+                    if (answer === 'Install') {
                         await installProtobuf();
                     }
                     return;
                 }
 
-                try {
-                    await protocAction(protocBin, activeEditor.document.uri.fsPath)
-                } catch (e) {
-                    // @ts-ignore
-                    vscode.window.showErrorMessage(e.message);
-                    return;
-                }
+                await protocAction(protocBin, currentFsPath)
+                const dartfilePath = currentFsPath.replace('.proto','.twirp.dart');
+                const dartFileUri = vscode.Uri.file(dartfilePath);
+               
+                vscode.commands.executeCommand('vscode.open', dartFileUri).then(_=>{
+                    CommonUtil.formatDocument(dartFileUri);
+                });
+     
                 vscode.window.showInformationMessage(`generate finished`);
 
             } catch (err) {
