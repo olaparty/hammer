@@ -13,7 +13,7 @@ const protocAction = async (binPath: string, fileName: string, args?: ReadonlyAr
         args = [];
     }
     const currentDir = path.dirname(fileName);
-    const protocPluginPath = Constants.EXTENSION_CONTEXT.asAbsolutePath(path.join('bin', 'darttwirp'));
+    const protocPluginPath = Constants.EXTENSION_CONTEXT.asAbsolutePath(path.join('bin', 'proto2dart'));
 
     if (!cwd) {
         cwd = currentDir;
