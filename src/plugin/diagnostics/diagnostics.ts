@@ -17,7 +17,7 @@ export class Diagnostics {
         this._dartExt = dartExt;
 
         this._codeActions.push(new LocalizedTextAction());
-        this._codeActions.push(new LocalizedWidgetAction());
+        // this._codeActions.push(new LocalizedWidgetAction());
 
         this._subscribeToDocumentChanges(context);
 

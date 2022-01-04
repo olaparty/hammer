@@ -3,7 +3,7 @@
     "displayName": "Hammer",
     "description": "Hammer for Visual Studio Code",
     "publisher": "zhileichen",
-    "version": "1.3.6",
+    "version": "1.3.8",
     "license": "MIT",
     "engines": {
         "vscode": "^1.35.0"
@@ -43,27 +43,6 @@
                 }
             }
         ],
-        "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "ola-hammer",
-                    "title": "Hammer",
-                    "icon": "resources/icon.svg"
-                }
-            ]
-        },
-        "views": {
-            "ola-hammer": [
-                {
-                    "id": "localTranslations",
-                    "name": "Translatesions"
-                },
-                {
-                    "id": "translationProgress",
-                    "name": "Progress"
-                }
-            ]
-        },
         "commands": [
             {
                 "command": "localTranslations.create",

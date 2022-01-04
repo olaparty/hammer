@@ -14,24 +14,24 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const diagnostics = new Diagnostics();
     const configHolder = new CrowdinConfigHolder();
-    const progressProvider = new ProgressTreeProvider(configHolder);
-    const localTranslationsProvider = new LocalTranslationsProvider(vscode.workspace.rootPath);
+    // const progressProvider = new ProgressTreeProvider(configHolder);
+    // const localTranslationsProvider = new LocalTranslationsProvider(vscode.workspace.rootPath);
 
-    configHolder.addListener(() => progressProvider.refresh());
+    // configHolder.addListener(() => progressProvider.refresh());
     configHolder.load();
 
-    vscode.window.registerTreeDataProvider('translationProgress', progressProvider);
-    vscode.window.registerTreeDataProvider('localTranslations', localTranslationsProvider);
+    // vscode.window.registerTreeDataProvider('translationProgress', progressProvider);
+    // vscode.window.registerTreeDataProvider('localTranslations', localTranslationsProvider);
 
     vscode.commands.registerCommand(Constants.OPEN_TMS_FILE_COMMAND, fsPath => vscode.commands.executeCommand('vscode.open', vscode.Uri.file(fsPath)));
 
-    vscode.commands.registerCommand('localTranslations.showEntry', args => localTranslationsProvider.showEntry(args));
+    // vscode.commands.registerCommand('localTranslations.showEntry', args => localTranslationsProvider.showEntry(args));
     vscode.commands.registerCommand('localTranslations.create', args => addEntry(args));
     vscode.commands.registerCommand('localTranslations.download', () => downloadTranslation(configHolder));
     vscode.commands.registerCommand('localTranslations.upload', () => uploadTranslations(configHolder));
     vscode.commands.registerCommand('localTranslations.search', () => openSearchTranslations());
 
-    vscode.commands.registerCommand('translationProgress.refresh', () => progressProvider.refresh());
+    // vscode.commands.registerCommand('translationProgress.refresh', () => progressProvider.refresh());
     vscode.commands.registerCommand('generator.proto', args => genProtoCommand(args));
     vscode.commands.registerCommand('generator.proto.update', args => {
         const uri = args as vscode.Uri;
