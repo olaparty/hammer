@@ -6,7 +6,7 @@ import { LocalTranslationsProvider } from './plugin/translations/localTranslatio
 import { downloadTranslation, openSearchTranslations } from './plugin/translations/downloadTranslationsCommand';
 import { Diagnostics } from './plugin/diagnostics/diagnostics';
 import { addEntry } from './plugin/translations/addEntryAction';
-import { uploadTranslations } from './plugin/translations/uploadTranslationsCommand';
+import { uploadTranslations, uploadTranslationSource} from './plugin/translations/uploadTranslationsCommand';
 import { genProtoCommand } from './plugin/generator/protoGenerator';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -29,6 +29,7 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('localTranslations.create', args => addEntry(args));
     vscode.commands.registerCommand('localTranslations.download', () => downloadTranslation(configHolder));
     vscode.commands.registerCommand('localTranslations.upload', () => uploadTranslations(configHolder));
+    vscode.commands.registerCommand('localTranslations.upload.json', (args) => uploadTranslationSource(args, configHolder));
     vscode.commands.registerCommand('localTranslations.search', () => openSearchTranslations());
 
     // vscode.commands.registerCommand('translationProgress.refresh', () => progressProvider.refresh());
