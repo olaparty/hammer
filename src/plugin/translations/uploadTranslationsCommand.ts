@@ -261,7 +261,7 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
                     // TODO: use promise to decrease the uploading duration
                     const value = fileMap.get(key);
 
-                    if (!value || !value.fileId || !value.remotePath) return;
+                    if (!value || !value.fileId || !value.remotePath) continue;
 
                     updatedFiles.push(key);
                     // TODO: merge remote content.
