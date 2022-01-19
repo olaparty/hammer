@@ -69,11 +69,14 @@ export class CrowdinClient {
             const filesToUnzip = zip.getEntries().filter(file => {
                 if(file.isDirectory) return;
 
-                var pathsegs = path.dirname(file.entryName).split('/');
-                if(directory && pathsegs.length >= 2 && pathsegs[1] == directory){
+                // var pathsegs = path.dirname(file.entryName).split('/');
+                let pathsegs = path.dirname(file.entryName).split('/');
+                pathsegs?.shift();
+                const fileName = pathsegs.join('/');
+                if(directory && fileName && fileName.startsWith(directory)){
                     return true;
                 }
-
+                
                 return false;
             });
 

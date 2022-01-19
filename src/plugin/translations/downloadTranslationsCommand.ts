@@ -34,7 +34,15 @@ export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
                 
                 const roomYaml = path.join(root, 'pubspec.yaml');
                 const packagePubspec = yaml.parse(fs.readFileSync(roomYaml, 'utf8'));
-                const supportLans = packagePubspec.flutter["assets-filter"];
+                let supportLans;
+                const assetFilts = packagePubspec.flutter["assets-filter"];
+                if (assetFilts) {
+                    if (Array.isArray(assetFilts)) {
+                        supportLans = supportLans;
+                    } else if (Array.isArray(assetFilts.filters)) {
+                        supportLans = assetFilts.filters;
+                    }
+                }
 
                 const promises = config.files
                     .map(async (f: { source: string; directory:any, translation: any; }) => {
