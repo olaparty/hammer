@@ -135,7 +135,7 @@ class AddEntryAction {
         const hasParams = ((value ?? '').match(RegExp("%\\d", 'g')) ?? []).length > 0;
 
         // add entry into json files
-        jsonData[entryName] = value;
+        jsonData[entryName] = value?.replace('\\n', '\n');
         var newJsonData = JSON.stringify(jsonData, null, 4);
         fs.writeFileSync(cnJsonFile, newJsonData, 'utf-8');
 
