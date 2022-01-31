@@ -160,7 +160,7 @@ export const uploadTranslationSource = (arg: vscode.Uri, configHolder: CrowdinCo
                         const fileName = `${moduleName}_${typeName}.json`;
 
                         const client = new CrowdinClient(
-                            config.projectId, config.apiKey, config.branch
+                            config.projectId, config.apiKey, config.branch, config.organization
                         );
                         if (!!config.directoryId) {
                             //@ts-ignore
@@ -241,7 +241,7 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
                 }
 
                 const client = new CrowdinClient(
-                    config.projectId, config.apiKey, config.branch
+                    config.projectId, config.apiKey, config.branch, config.organization,
                 );
                 if (!!config.directoryId) {
                     //@ts-ignore
