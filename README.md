@@ -1,9 +1,13 @@
 
 [<p align="left"><img src="icon.png" dwidth="80" height="80" align="center"/></p>](https://marketplace.visualstudio.com/items?itemName=zhileichen.hammer)
 
-# Hammer Visual Studio Code Plugin 
+#  Hammer Visual Studio Code Plugin 
+![GitHub package.json version](https://img.shields.io/github/package-json/v/olaparty/hammer)
+![Visual Studio Marketplace Last Updated](https://img.shields.io/visual-studio-marketplace/last-updated/zhileichen.hammer)
+![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/i/zhileichen.hammer)
+![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/zhileichen.hammer)
 
-[Get it from the VS Code Marketplace →](https://marketplace.visualstudio.com/items?itemName=zhileichen.hammer)
+[Get it from the VS Code Marketplace →](https://marketplace.visualstudio.com/items?itemName=zhileichen.hammer) 
 
 ## Prerequisites
 You need to have node and npm installed on your system to run the project. It is recommended to use the node version used for VS Code development itself which is documented here.
