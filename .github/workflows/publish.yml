@@ -4,23 +4,21 @@ name: publish
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  deploy:
+  pack:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - run: npm install
       - uses: lannonbr/vsce-action@3.0.0
         with:
-          args: "publish -p $VSCE_TOKEN"
-        env:
-          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+          args: "package"
+      - uses: actions/upload-artifact@v2.3.1
+        with: 
+          path: |
+            /github/workspace/*.vsix          
+        
