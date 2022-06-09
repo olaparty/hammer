@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { ErrorHandler } from '../../util/errorHandler';
 import { CommonUtil } from '../../util/commonUtil';
+import { PathUtil } from '../../util/pathUtil';
 import { execute } from '../../util/execcommand';
 import { Constants } from '../../constants';
 import { getActiveTextEditor } from '../../util/get-active';
@@ -64,6 +65,8 @@ export const genProtoCommand = (args: any) => {
                 await protocAction(protocBin, currentFsPath)
                 const dartfilePath = currentFsPath.replace('.proto','.twirp.dart');
                 const dartFileUri = vscode.Uri.file(dartfilePath);
+
+                if(!PathUtil.pathExists(dartfilePath)) return;
                
                 vscode.commands.executeCommand('vscode.open', dartFileUri).then(_=>{
                     CommonUtil.formatDocument(dartFileUri);
