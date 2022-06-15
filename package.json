@@ -3,7 +3,7 @@
     "displayName": "Hammer",
     "description": "Hammer for Visual Studio Code",
     "publisher": "zhileichen",
-    "version": "1.5.5",
+    "version": "1.6.0",
     "license": "MIT",
     "engines": {
         "vscode": "^1.35.0"
@@ -91,6 +91,14 @@
             {
                 "command": "translationProgress.refresh",
                 "title": "Refresh progress",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "hammer.enable_null_safety",
+                "title": "[Hammer] Support null safety",
                 "icon": {
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"

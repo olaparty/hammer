@@ -8,6 +8,7 @@ import { Diagnostics } from './plugin/diagnostics/diagnostics';
 import { addEntry } from './plugin/translations/addEntryAction';
 import { uploadTranslations, uploadTranslationSource} from './plugin/translations/uploadTranslationsCommand';
 import { genProtoCommand } from './plugin/generator/protoGenerator';
+import { enableNullSafety } from './plugin/nullsafety/enable_nullsafety';
 
 export async function activate(context: vscode.ExtensionContext) {
     Constants.initialize(context);
@@ -39,6 +40,8 @@ export async function activate(context: vscode.ExtensionContext) {
         const newUri = vscode.Uri.file(uri.fsPath.replace('.twirp.dart', '.proto'));
         genProtoCommand(newUri)
     });
+
+    vscode.commands.registerCommand('hammer.enable_null_safety', args => enableNullSafety(args));
 
 
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { LocalizedTextAction } from './localizedTextAction';
-import { LocalizedWidgetAction } from './localizedWidgetAction';
+// import { LocalizedWidgetAction } from './localizedWidgetAction';
+import { NullSafetyAction } from './null_safety_action';
 import { ICodeAction } from './codeaction_interface';
 
 
@@ -17,6 +18,7 @@ export class Diagnostics {
         this._dartExt = dartExt;
 
         this._codeActions.push(new LocalizedTextAction());
+        this._codeActions.push(new NullSafetyAction());
         // this._codeActions.push(new LocalizedWidgetAction());
 
         this._subscribeToDocumentChanges(context);
