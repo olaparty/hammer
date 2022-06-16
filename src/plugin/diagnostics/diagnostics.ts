@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import { LocalizedTextAction } from './localizedTextAction';
 // import { LocalizedWidgetAction } from './localizedWidgetAction';
 import { NullSafetyAction } from './null_safety_action';
-import { ICodeAction } from './codeaction_interface';
+import { ICodeAction,DocumentGitTag } from './codeaction_interface';
+import { isActiveFileNewAdded } from '../../util/gitcommand';
 
 
 export class Diagnostics {
@@ -64,14 +65,15 @@ export class Diagnostics {
         }, 500);  
     }
 
-    private _processDoc(doc: vscode.TextDocument) {
+    private async _processDoc(doc: vscode.TextDocument) {
         const diagnostics: vscode.Diagnostic[] = [];
         this._diagnostics.delete(doc.uri);
-
+        const isNewFile = await isActiveFileNewAdded();
+        const gitTag = isNewFile ? DocumentGitTag.New : DocumentGitTag.Modified;
         // const flutterOutlineTreeProvider = _dartExt.flutterOutlineTreeProvider;
         // const node = flutterOutlineTreeProvider!.getNodeAt(e.textEditor.document.uri, e.selections[0].start);
         this._codeActions.forEach((value) => {
-            var diagnostic = value.createDiagnostic(doc);
+            var diagnostic = value.createDiagnostic(doc, gitTag);
             if(!!diagnostic) {
                 diagnostics.push(...diagnostic);
             }
@@ -80,7 +82,7 @@ export class Diagnostics {
         for (let lineIndex = 0; lineIndex < doc.lineCount; lineIndex++) {
             const lineOfText = doc.lineAt(lineIndex);
             this._codeActions.forEach((value) => {
-                var diagnostic = value.createLineDiagnostic(doc, lineOfText, lineIndex);
+                var diagnostic = value.createLineDiagnostic(doc, lineOfText, lineIndex, gitTag);
                 if(!!diagnostic) {
                     diagnostics.push(...diagnostic);
                 }

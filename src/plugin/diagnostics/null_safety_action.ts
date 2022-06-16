@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { CommonUtil } from '../../util/commonUtil';
-import { ICodeAction } from './codeaction_interface';
+import { isActiveFileNewAdded } from '../../util/gitcommand';
+import { ICodeAction, DocumentGitTag} from './codeaction_interface';
 
 const SUPPORT_NULL_SAFETY_COMMAND = 'hammer.enable_null_safety';
 
@@ -41,13 +42,15 @@ export class NullSafetyAction implements ICodeAction {
         return action;
     }
 
-    createLineDiagnostic(doc: vscode.TextDocument, lineOfText: vscode.TextLine, lineIndex: number): vscode.Diagnostic[] | undefined {
+    createLineDiagnostic(doc: vscode.TextDocument, lineOfText: vscode.TextLine, lineIndex: number, gitTag: DocumentGitTag): vscode.Diagnostic[] | undefined {
         const collections: vscode.Diagnostic[] = [];
         return collections;
     }
 
-    createDiagnostic(doc: vscode.TextDocument): vscode.Diagnostic[] | undefined {
+    createDiagnostic(doc: vscode.TextDocument, gitTag: DocumentGitTag): vscode.Diagnostic[] | undefined{
         if (doc.fileName.endsWith('a.dart') || doc.fileName.endsWith('k.dart')) return undefined;
+        if (gitTag !== DocumentGitTag.New) return undefined;
+
         const collections: vscode.Diagnostic[] = [];
 
         try {

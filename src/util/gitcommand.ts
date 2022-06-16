@@ -96,3 +96,20 @@ export const getRelativePathOfActiveFile = async (): Promise<string> => {
     const { fileName } = activeEditor.document;
     return runGit(fileName, "ls-files", "--full-name", "--", fileName);
 }
+
+
+export const isActiveFileNewAdded = async (): Promise<Boolean> => {
+    const activeEditor = getActiveTextEditor();
+
+    if (!validEditor(activeEditor)) {
+        return false;
+    }
+
+    const { fileName } = activeEditor.document;
+    const baseFileName = fileName.replace(`${vscode.workspace.rootPath ?? ''}/`, '');
+    const gitStatus: string =  await runGit(fileName, "status", "--porcelain") ?? '';
+    const results = gitStatus.split('\n').find((value) => `A ${baseFileName}` === value || `?? ${baseFileName}` === value);
+
+
+    return results != undefined;
+}
