@@ -16,7 +16,7 @@ export const enableNullSafety = (args: any) => {
 
                 var pos = new vscode.Position(0, 0);
                 var wseditor = new vscode.WorkspaceEdit();
-                wseditor.insert(activeEditor.document.uri, pos, "// @dart = 2.12 \n");
+                wseditor.insert(activeEditor.document.uri, pos, "// @dart = 2.12 \n// ignore_for_file: import_of_legacy_library_into_null_safe\n");
                 vscode.workspace.applyEdit(wseditor);    
                 
      
