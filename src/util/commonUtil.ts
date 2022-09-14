@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+export type NullAsUndefined<T> = null extends T ? Exclude<T, null> | undefined : T;
 
 export class CommonUtil {
 
@@ -39,5 +40,9 @@ export class CommonUtil {
                 }
             );
         });
+    }
+
+    static nullToUndefined<T>(value: T): NullAsUndefined<T> {
+        return (value === null ? undefined : value) as NullAsUndefined<T>;
     }
 }

@@ -73,6 +73,10 @@
                 "title": "[Hammer] Upload this file"
             },
             {
+                "command": "generator.mobx",
+                "title": "[Hammer] Generate mobx store"
+            },
+            {
                 "command": "generator.proto",
                 "title": "[Hammer] generate dart"
             },
@@ -124,6 +128,11 @@
                 }
             ],
             "editor/context": [
+                {
+                    "command": "generator.mobx",
+                    "when": "editorTextFocus && resourceExtname == .dart",
+                    "group": "HammerGroup@0"
+                },
                 {
                     "command": "generator.proto",
                     "when": "editorTextFocus && resourceExtname == .proto",

@@ -8,6 +8,7 @@ import { Diagnostics } from './plugin/diagnostics/diagnostics';
 import { addEntry } from './plugin/translations/addEntryAction';
 import { uploadTranslations, uploadTranslationSource} from './plugin/translations/uploadTranslationsCommand';
 import { genProtoCommand } from './plugin/generator/protoGenerator';
+import { genMobxCommand } from './plugin/generator/mobxstoreGenerator';
 import { enableNullSafety } from './plugin/nullsafety/enable_nullsafety';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -34,6 +35,7 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('localTranslations.search', () => openSearchTranslations());
 
     // vscode.commands.registerCommand('translationProgress.refresh', () => progressProvider.refresh());
+    vscode.commands.registerCommand('generator.mobx', args => genMobxCommand(args));
     vscode.commands.registerCommand('generator.proto', args => genProtoCommand(args));
     vscode.commands.registerCommand('generator.proto.update', args => {
         const uri = args as vscode.Uri;
