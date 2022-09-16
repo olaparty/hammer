@@ -10,6 +10,7 @@ import { uploadTranslations, uploadTranslationSource} from './plugin/translation
 import { genProtoCommand } from './plugin/generator/protoGenerator';
 import { genMobxCommand } from './plugin/generator/mobxstoreGenerator';
 import { enableNullSafety } from './plugin/nullsafety/enable_nullsafety';
+import { WrapObserverCodeActionProvider, wrapObserverCommand } from './plugin/diagnostics/wrapWithObserver';
 
 export async function activate(context: vscode.ExtensionContext) {
     Constants.initialize(context);
@@ -44,6 +45,7 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     vscode.commands.registerCommand('hammer.enable_null_safety', args => enableNullSafety(args));
+    vscode.commands.registerCommand('hammer.wrapObserver', args => wrapObserverCommand(args));
 
 
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
@@ -51,6 +53,14 @@ export async function activate(context: vscode.ExtensionContext) {
             configHolder.load();
         }
     }));
+
+    context.subscriptions.push(
+        vscode.languages.registerCodeActionsProvider(
+          { pattern: "**/*.{dart,dartx}", scheme: "file" },
+          new WrapObserverCodeActionProvider()
+        )
+      );
+
 
     // Ensure we have a Dart extension.
     // const dartExt = vscode.extensions.getExtension('Dart-Code.dart-code');

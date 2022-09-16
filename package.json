@@ -3,7 +3,7 @@
     "displayName": "Hammer",
     "description": "Hammer for Visual Studio Code",
     "publisher": "zhileichen",
-    "version": "1.6.3",
+    "version": "1.6.5",
     "license": "MIT",
     "engines": {
         "vscode": "^1.35.0"
@@ -107,6 +107,10 @@
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
                 }
+            },
+            {
+                "command": "hammer.wrapObserver",
+                "title": "Wrap with Observer"
             }
         ],
         "menus": {
