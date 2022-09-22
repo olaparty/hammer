@@ -7,6 +7,7 @@ import { execute } from '../../util/execcommand';
 import { Constants } from '../../constants';
 import { getActiveTextEditor } from '../../util/get-active';
 import { validEditor } from '../../util/editorvalidator';
+import { runProcess, safeSpawn } from '../../util/process';
 
 
 const protocAction = async (binPath: string, fileName: string, args?: ReadonlyArray<string>, cwd?: string | undefined): Promise<string> => {
@@ -19,9 +20,19 @@ const protocAction = async (binPath: string, fileName: string, args?: ReadonlyAr
     if (!cwd) {
         cwd = currentDir;
     }
+    const newArgs =  ["-I", currentDir, `--plugin=protoc-gen-custom=${protocPluginPath}`, `--custom_out=${currentDir}`, fileName];
+    const env = {};
+    const proc = await runProcess(binPath, newArgs, cwd, env, safeSpawn);
+	if (proc.exitCode === 0) {
+        const result = proc.stdout.trim();
+        return ''
+	}
+
+    return proc.stderr;
+
     // -I . --plugin=protoc-gen-custom=./main --custom_out=. captcha.proto
-    args = ["-I", currentDir, `--plugin=protoc-gen-custom=${protocPluginPath}`, `--custom_out=${currentDir}`, fileName];
-    return await runProtoc(binPath, ...args);
+    // args = ["-I", currentDir, `--plugin=protoc-gen-custom=${protocPluginPath}`, `--custom_out=${currentDir}`, fileName];
+    // return await runProtoc(binPath, ...args);
 }
 
 const runProtoc = (
@@ -62,7 +73,12 @@ export const genProtoCommand = (args: any) => {
                     return;
                 }
 
-                await protocAction(protocBin, currentFsPath)
+                var result = await protocAction(protocBin, currentFsPath)
+                if(result != ''){
+                    vscode.window.showInformationMessage(`failed: ${result}`);
+                    return;
+                }
+
                 const dartfilePath = currentFsPath.replace('.proto','.twirp.dart');
                 const dartFileUri = vscode.Uri.file(dartfilePath);
 

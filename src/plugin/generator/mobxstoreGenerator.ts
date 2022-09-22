@@ -38,7 +38,7 @@ const mobxAction = async (binPath: string, fileName: string, args?: ReadonlyArra
 // ): Promise<string> => execute(binPath ?? "/usr/local/bin/dart", args, options, false);
 
 const getDartBin = (
-): Promise<string> => execute('which', ['dart'], {});
+): Promise<string> => execute('which', ['flutter'], {});
 
 
 export const genMobxCommand = (args: any) => {
