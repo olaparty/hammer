@@ -4,21 +4,31 @@ name: publish
 
 # Controls when the workflow will run
 on:
+  push:
+    branches:
+      - "main"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  pack:
+  publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: npm install
-      - uses: lannonbr/vsce-action@3.0.0
+      - name: Checkout code
+        uses: actions/checkout@v2
         with:
-          args: "package"
-      - uses: actions/upload-artifact@v2.3.1
-        with: 
-          path: |
-            /github/workspace/*.vsix          
-        
+          fetch-depth: 1
+      - name: publish
+        run: |
+          echo "=======publish======"
+          version_changed=$(git diff -- package.json  HEAD^ HEAD | grep "version" || true)
+          [ -z "$version_changed" ] && exit 0
+
+          npm install -g vsce
+          apt-get install jq
+          #vsce package
+          #file=$(realpath $(ls -t *.vsix | head -1))
+          vsce publish -p ${{ secrets.GITHUB_TOKEN }}
+          
+
