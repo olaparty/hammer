@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - "main"
-      - "dev"
     paths:
       - "package.json"
 
@@ -25,7 +24,7 @@ jobs:
       - name: publish
         run: |
           echo "=======publish======"
-          version_changed=$(git diff -- package.json  HEAD^ HEAD | grep "version" || true)
+          version_changed=$(git diff HEAD~1.. -- package.json | grep "version" || true)
           [ -z "$version_changed" ] && exit 0
 
           npm install -g @vscode/vsce
