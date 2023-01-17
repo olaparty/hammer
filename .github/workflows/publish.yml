@@ -25,10 +25,10 @@ jobs:
           version_changed=$(git diff -- package.json  HEAD^ HEAD | grep "version" || true)
           [ -z "$version_changed" ] && exit 0
 
-          npm install -g @vscode/vsce
-          npm install
+          npm install -g vsce
+          apt-get install jq
           #vsce package
           #file=$(realpath $(ls -t *.vsix | head -1))
-          vsce publish -p ${{ secrets.VSCE_TOKEN }}
+          vsce publish -p ${{ secrets.GITHUB_TOKEN }}
           
 
