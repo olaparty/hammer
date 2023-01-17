@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { Constants } from '../../constants';
 import { CommonUtil } from '../../util/commonUtil';
 import { ICodeAction } from './codeaction_interface';
 
@@ -22,8 +23,7 @@ export class LocalizedTextAction implements ICodeAction {
 
     public provideCodeActions(document: vscode.TextDocument, range: vscode.Range): vscode.CodeAction[] | undefined {
         const rangeText = document.getText(range);
-        const rawStrTRegx = '([\'\"])(.*?)([\'\"])';
-        var matches = rangeText.match(RegExp(rawStrTRegx, 'g'));
+        const matches = this._getCheckRegex().exec(rangeText);
         if (!matches || !matches.length) return;
 
         const replaceQuickfix = this.createFix(document, range);
@@ -59,15 +59,20 @@ export class LocalizedTextAction implements ICodeAction {
                 let match;
                 while (match = textRegex.exec(docText)) {
                     const matchText = match[0];
-                    const rawStrRegex = /(['"])(.*?)(['"])/g;
-                    const rawStr = rawStrRegex.exec(matchText);
+                    const rawStr = this._getCheckRegex().exec(matchText);
+                    if (rawStr == null || rawStr.length == 0) {
+                        continue;
+                    }
+
                     let offset = 0;
+                    let length = 0;
                     if (rawStr) {
                         offset = rawStr.index;
+                        length = rawStr[0].length;
                     }
 
                     const startPos = doc.positionAt(match.index + offset);
-                    const endPos = doc.positionAt(match.index + matchText.length);
+                    const endPos = doc.positionAt(match.index + offset + length);
                     
                     collections.push({
                         code: TEXT_INSPECT,
@@ -86,4 +91,9 @@ export class LocalizedTextAction implements ICodeAction {
         return collections;
     }
 
+    private _getCheckRegex(): RegExp {
+        const onlyCheckChinese = vscode.workspace.getConfiguration().get<boolean>(Constants.ONLY_CHECK_CHINESE);
+        const rawStrRegex = onlyCheckChinese ? /(?<=['"]).*([\u4E00-\u9FA5]{1,}).*(?=['"])/g : /(?<=['"]).*(\S+).*(?=['"])/g;
+        return rawStrRegex;
+    }
 }

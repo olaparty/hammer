@@ -11,6 +11,7 @@ import { genProtoCommand } from './plugin/generator/protoGenerator';
 import { genMobxCommand } from './plugin/generator/mobxstoreGenerator';
 import { enableNullSafety } from './plugin/nullsafety/enable_nullsafety';
 import { WrapObserverCodeActionProvider, wrapObserverCommand } from './plugin/diagnostics/wrapWithObserver';
+import { importImage } from './plugin/importImages/importImageAction';
 
 export async function activate(context: vscode.ExtensionContext) {
     Constants.initialize(context);
@@ -47,6 +48,7 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('hammer.enable_null_safety', args => enableNullSafety(args));
     vscode.commands.registerCommand('hammer.wrapObserver', args => wrapObserverCommand(args));
 
+    vscode.commands.registerCommand('images.import', args => importImage(args));
 
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration(Constants.AUTO_REFRESH_PROPERTY)) {
