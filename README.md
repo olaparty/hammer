@@ -52,6 +52,8 @@ files:
 ![text_quickfix.gif](doc/text_quickfix.gif)
 - 自定义规则检测不合规控件使用并一键修复 
 ![widget_quickfix.gif](doc/widget_quickfix.gif)
+- 图片文件快捷导入并压缩
+![widget_import_image.gif](doc/widget_import_image.gif)
 - 一键同步crowdin的翻译文本到本地项目
 ![download_intl.gif](doc/download_intl.gif)
 - 一键上传待翻译文本到crowdin

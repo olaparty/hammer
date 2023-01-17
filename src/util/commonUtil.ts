@@ -1,4 +1,7 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
+import { PathUtil } from './pathUtil';
+
 export type NullAsUndefined<T> = null extends T ? Exclude<T, null> | undefined : T;
 
 export class CommonUtil {
@@ -44,5 +47,31 @@ export class CommonUtil {
 
     static nullToUndefined<T>(value: T): NullAsUndefined<T> {
         return (value === null ? undefined : value) as NullAsUndefined<T>;
+    }
+
+    static getPackagePath(dir: string | undefined): string | undefined {
+        if (dir == undefined) {
+            var editor = vscode.window.activeTextEditor;
+            dir = editor?.document.uri.path;
+        }
+
+        if (dir == vscode.workspace.rootPath ?? '') return undefined;
+
+        var parentDir = path.dirname(dir as string);
+
+        var yamlFilePath = path.join(parentDir, 'pubspec.yaml');
+        if (PathUtil.pathExists(yamlFilePath)) {
+            return parentDir;
+        }
+
+        return this.getPackagePath(parentDir);
+    }
+
+    static getCurrentPackageName(): string | undefined {
+        const packagePath = this.getPackagePath(undefined);
+        if (packagePath == undefined) {
+            return undefined;
+        }
+        return path.basename(packagePath);
     }
 }
