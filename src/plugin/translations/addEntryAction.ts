@@ -3,8 +3,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { PathUtil } from '../../util/pathUtil';
 import { Constants } from '../../constants';
-import { utils } from 'mocha';
 import { CommonUtil } from '../../util/commonUtil';
+import { runProcess, safeSpawn } from '../../util/process';
 
 const cnJsonRelativePath = 'assets/locale/string_zh_CN.json';
 
@@ -161,14 +161,23 @@ class AddEntryAction {
         });
         editResults.push(importResult);
 
-        // add entry into k.dart 
-        var wseditor = new vscode.WorkspaceEdit();
-        var kdartFilePath = path.join(packageRoot, 'lib', 'k.dart');
-        var {indent, insertPos} = this._getKDartInsertPos(kdartFilePath);
-        const textToJson = hasParams ? `\n${indent}// ${value}\n${indent}static String ${entryName} (List<String> args){ return R.string('${entryName}',args: args);}\n`
-            : `\n${indent}/// ${rawEntryValue}\n${indent}static String get ${entryName} => R.string('${entryName}');\n`;
-        wseditor.insert(vscode.Uri.file(kdartFilePath), insertPos, textToJson);
-        editResults.push(vscode.workspace.applyEdit(wseditor));
+        var kdartGenFilePath = path.join(packageRoot, 'tools', 'kdart_cli', 'kdart_cli');
+        /// run kdart_cli if bin exists, 
+        if(PathUtil.pathExists(kdartGenFilePath)) {
+            var result = await kdartGenAction(kdartGenFilePath, vscode.workspace.rootPath!)
+            if(result != ''){
+                vscode.window.showInformationMessage(`failed: ${result}`);
+            }
+        }else{
+            // add entry into k.dart 
+            var wseditor = new vscode.WorkspaceEdit();
+            var kdartFilePath = path.join(packageRoot, 'lib', 'k.dart');
+            var {indent, insertPos} = this._getKDartInsertPos(kdartFilePath);
+            const textToJson = hasParams ? `\n${indent}// ${value}\n${indent}static String ${entryName} (List<String> args){ return R.string('${entryName}',args: args);}\n`
+                : `\n${indent}/// ${rawEntryValue}\n${indent}static String get ${entryName} => R.string('${entryName}');\n`;
+            wseditor.insert(vscode.Uri.file(kdartFilePath), insertPos, textToJson);
+            editResults.push(vscode.workspace.applyEdit(wseditor));
+        }
         
         return await Promise.all(editResults).then(
             (successList) => {
@@ -251,8 +260,28 @@ class AddEntryAction {
 
         return {indent:'\t', insertPos: new vscode.Position(0, 0)};
     }
+
+    
 }
 
+
+const kdartGenAction = async (binPath: string, rootPath: string, args?: ReadonlyArray<string>, cwd?: string | undefined): Promise<string> => {
+    if (!args) {
+        args = [];
+    }
+    const currentDir = path.normalize(rootPath);
+    if (!cwd) {
+        cwd = currentDir;
+    }
+    const newArgs =  ["-p", currentDir];
+    const env = {};
+    const proc = await runProcess(binPath, newArgs, cwd, env, safeSpawn);
+	if (proc.exitCode === 0) {
+        return ''
+	}
+
+    return proc.stderr;
+}
 
 export async function addEntry(args: any) {
     await new AddEntryAction(vscode.workspace.rootPath ?? '', args).run();
