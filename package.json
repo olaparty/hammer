@@ -3,7 +3,7 @@
     "displayName": "Hammer",
     "description": "Hammer for Visual Studio Code",
     "publisher": "zhileichen",
-    "version": "1.7.1", 
+    "version": "1.8.1", 
     "license": "MIT",
     "engines": {
         "vscode": "^1.35.0"
@@ -95,6 +95,10 @@
                 "title": "[Hammer] Generate mobx store"
             },
             {
+                "command": "generator.goroute",
+                "title": "[Hammer] Generate goroute metadata"
+            },
+            {
                 "command": "generator.proto",
                 "title": "[Hammer] generate dart"
             },
@@ -154,6 +158,11 @@
                 }
             ],
             "editor/context": [
+                {
+                    "command": "generator.goroute",
+                    "when": "editorTextFocus && resourceExtname == .dart",
+                    "group": "HammerGroup@0"
+                },
                 {
                     "command": "generator.mobx",
                     "when": "editorTextFocus && resourceExtname == .dart",

@@ -12,6 +12,7 @@ import { genMobxCommand } from './plugin/generator/mobxstoreGenerator';
 import { enableNullSafety } from './plugin/nullsafety/enable_nullsafety';
 import { WrapObserverCodeActionProvider, wrapObserverCommand } from './plugin/diagnostics/wrapWithObserver';
 import { importImage } from './plugin/importImages/importImageAction';
+import { genGoRouteCommand } from './plugin/generator/goRouteGenerator';
 
 export async function activate(context: vscode.ExtensionContext) {
     Constants.initialize(context);
@@ -38,6 +39,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // vscode.commands.registerCommand('translationProgress.refresh', () => progressProvider.refresh());
     vscode.commands.registerCommand('generator.mobx', args => genMobxCommand(args));
+    vscode.commands.registerCommand('generator.goroute', args => genGoRouteCommand(args));
     vscode.commands.registerCommand('generator.proto', args => genProtoCommand(args));
     vscode.commands.registerCommand('generator.proto.update', args => {
         const uri = args as vscode.Uri;
