@@ -66,7 +66,10 @@ export const genGoRouteCommand = (args: any) => {
                     dartBin = path.join(flutterSdkPath, 'bin', 'flutter');
                     if(!fs.existsSync(dartBin)) return;
                 }
-
+                if (!currentFsPath.includes("banban_base/bbcore/lib/src/routes/routes.dart")) {
+                    vscode.window.showInformationMessage(`Please execute this command at banban_base/bbcore/lib/src/routes/routes.dart`);
+                    return;
+                }
                 var result = await goRouteAction(dartBin, currentFsPath, [], vscode.workspace.rootPath);
                 if(result != ''){
                     vscode.window.showInformationMessage(`failed: ${result}`);
