@@ -20,7 +20,7 @@ const goRouteAction = async (binPath: string, fileName: string, args?: ReadonlyA
         cwd = currentDir;
     }
 
-    const newArgs = ['pub', 'run', 'go_router_builder_bin', '-s', `${fileName}`];
+    const newArgs = ['pub', 'run', 'vk_go_router_builder', '-s', `${fileName}`];
     const env = {};
     const proc = await runProcess(binPath, newArgs, cwd, env, safeSpawn);
 	if (proc.exitCode === 0) {
