@@ -133,7 +133,12 @@ export const uploadTranslationSource = (arg: vscode.Uri, configHolder: CrowdinCo
                     branch = CommonUtil.getCurrentGitBranch(editor.document.uri)
                 }
                 if (branch !== undefined) {
-                    branch = branch.replace(/[^\w\s-]/gi, "-")
+                    if (branch === 'beta' || branch === 'main') {
+                        branch = undefined
+                    } else {
+                        branch = branch.replace(/[^\w\s-]/gi, "-")
+                    }
+                    
                 }
 
                         const client = new CrowdinClient(
