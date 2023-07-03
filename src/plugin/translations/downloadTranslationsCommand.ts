@@ -32,34 +32,37 @@ export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
 
                 const root = config.basePath ? path.join(workspace.uri.fsPath, config.basePath) : workspace.uri.fsPath;
                 
-                const roomYaml = path.join(root, 'pubspec.yaml');
-                const packagePubspec = yaml.parse(fs.readFileSync(roomYaml, 'utf8'));
-                let supportLans;
-                const assetFilts = packagePubspec.flutter["assets-filter"];
-                if (assetFilts) {
-                    if (Array.isArray(assetFilts)) {
-                        supportLans = supportLans;
-                    } else if (Array.isArray(assetFilts.filters)) {
-                        supportLans = assetFilts.filters;
-                    }
-                }
 
                 const promises = config.files
-                    .map(async (f: { source: string; directory:any, translation: any; }) => {
+                    .map(async (f: { source: string; directory:any, translation: any, languageMapping:any, dest: string }) => {
 
                         let foundFiles = await asyncGlob(f.source, { cwd: root, root: root });
                         const sourceFiles: SourceFiles = {
                             files: foundFiles,
                             sourcePattern: f.source,
                             directoryPattern: f.directory,
-                            translationPattern: f.translation
+                            translationPattern: f.translation,
+                            languageMapping: f.languageMapping,
+                            dest: f.dest
                         };
                         return sourceFiles;
                     });
-
+                    const editor = vscode.window.activeTextEditor;
+                    let branch = undefined
+                if(editor) {
+                    branch = CommonUtil.getCurrentGitBranch(editor.document.uri)
+                }
+                if (branch !== undefined) {
+                    if (branch === 'beta' || branch === 'main') {
+                        branch = undefined
+                    } else {
+                        branch = branch.replace(/[^\w\s-]/gi, "-")
+                    }
                     
+                }
+                
                 const client = new CrowdinClient(
-                    config.projectId, config.apiKey, config.branch, config.organization,supportLans
+                    config.projectId, config.apiKey, branch, config.organization,undefined
                 );
                 const sourceFilesArr = await Promise.all(promises);
                 //@ts-ignore

@@ -1,9 +1,9 @@
 {
     "name": "hammer",
-    "displayName": "Hammer",
+    "displayName": "hammer",
     "description": "Hammer for Visual Studio Code",
     "publisher": "zhileichen",
-    "version": "1.7.1", 
+    "version": "1.8.0", 
     "license": "MIT",
     "engines": {
         "vscode": "^1.35.0"
@@ -192,6 +192,9 @@
             ]
         }
     },
+    "extensionDependencies": [
+        "vscode.git"
+      ],
     "scripts": {
         "vscode:prepublish": "webpack --mode production",
         "webpack": "webpack --mode development",

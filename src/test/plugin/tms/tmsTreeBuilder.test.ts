@@ -21,7 +21,12 @@ suite("Plugin tree", function () {
             basePath: 'folder1/folder2',
             files: [{
                 source: '/**/[^0-2].txt',
-                translation: '/**/%two_letters_code%_%original_file_name%'
+                translation: '/**/%two_letters_code%_%original_file_name%',
+                dest: "/client/asd.json",
+                languageMapping: {
+                    two_letters_code: {string: ""}
+                }
+                
             }]
         };
         workspace = {
