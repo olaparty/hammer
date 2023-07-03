@@ -8,6 +8,7 @@ import { Scheme } from '../config/fileModel';
 import { Constants } from '../constants';
 import { SourceFiles } from '../model/sourceFiles';
 import { PathUtil } from '../util/pathUtil';
+import * as vscode from 'vscode';
 
 export class CrowdinClient {
 
@@ -82,8 +83,9 @@ export class CrowdinClient {
                 let entryName = file.entryName;
                 let pathsegs =entryName.split('/')
                 let language = pathsegs.shift();
-                language = language?.replace('-', '_');
-                if(this.supportLanguages?.indexOf(language??'') == -1) return;
+                const downloadedCrowdinDest = "/"+pathsegs.join("/")
+                // language = language?.replace('-', '_');
+                // if(this.supportLanguages?.indexOf(language??'') == -1) return;
 
                 let filename = pathsegs.pop() ?? '';
                 let filecomps = filename.split('.')[0].split('_');
@@ -95,8 +97,10 @@ export class CrowdinClient {
                     modulename = '';
                     moduleDir = '';
                 }
-                
-                entryName = path.join(moduleDir, modulename, 'assets', 'locale',  `${filename}_${language}.json`);
+                const sourceFileEntry = sourceFilesArr.find((e) => e.dest === downloadedCrowdinDest)
+                const twoLetterCodeMap = sourceFileEntry?.languageMapping?.two_letters_code;
+                const twoLetterCode = (twoLetterCodeMap as any)[language ?? ""] ?? language;
+                entryName = path.join(moduleDir, modulename, 'assets', 'locale',  `${filename}_${twoLetterCode}.json`);
                 
                 const filePath = path.join(unzipFolder, entryName);
                 const directory = path.dirname(filePath);

@@ -115,7 +115,9 @@ export class ConfigProvider {
                     updateOption: this.getFileUpdateOption(f.update_option),
                     excludedTargetLanguages: f.excluded_target_languages,
                     labels: f.labels,
-                    scheme: this.getFileScheme(f.scheme)
+                    scheme: this.getFileScheme(f.scheme),
+                    languageMapping: f.languages_mapping,
+                    dest: f.dest
                 } as FileModel;
             }),
             organization: organization
@@ -186,4 +188,8 @@ interface PrivateFileModel {
     excluded_target_languages?: string[];
     labels?: string[];
     scheme?: string;
+    languages_mapping: {
+        two_letters_code: {string: string}
+    }
+    dest: string;
 }

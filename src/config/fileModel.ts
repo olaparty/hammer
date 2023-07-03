@@ -8,6 +8,10 @@ export interface FileModel {
     excludedTargetLanguages?: string[];
     labels?: string[];
     scheme?: Scheme;
+    languageMapping: {
+        two_letters_code: {string: string}
+    }
+    dest: string;
 }
 
 export interface Scheme {
