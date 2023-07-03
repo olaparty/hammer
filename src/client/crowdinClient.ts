@@ -325,7 +325,7 @@ export class CrowdinClient {
         }
     }
 
-    async getDirectoryFiles(branchId: number, dirId?: number) {
+    async getDirectoryFiles(dirId?: number) {
         if(!dirId) return undefined;
 
         const files = await this.crowdin.sourceFilesApi.withFetchAll().listProjectFiles(this.projectId, undefined, dirId);
