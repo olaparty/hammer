@@ -218,7 +218,7 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
                     }
                 });
                 const answer = await vscode.window.showInformationMessage(
-                    `Upload local changes\n${Array.from(fileMap.keys()).join('\n')}`,
+                    `Comparing with beta, Upload local changes\n${Array.from(fileMap.keys()).join('\n')}`,
                     { modal: true },
                     ...["Yes", "No"]
                 );
@@ -233,8 +233,26 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
                     branch = CommonUtil.getCurrentGitBranch(editor.document.uri)
                 }
                 if (branch !== undefined) {
-                    branch = branch.replace(/[^\w\s-]/gi, "-")
+                    if (branch === 'beta' || branch === 'main') {
+                        const answer = await vscode.window.showInformationMessage(
+                            `Override translations in main?`,
+                            { modal: true },
+                            ...["Yes", "No"]
+                        );
+        
+                        if (answer != 'Yes') {
+                            return;
+                        }
+                        branch = undefined
+                    } else {
+                        branch = branch.replace(/[^\w\s-]/gi, "-")
+                    }
+                    
                 }
+
+                
+
+                
 
                 const client = new CrowdinClient(
                     config.projectId, config.apiKey, branch, config.organization,

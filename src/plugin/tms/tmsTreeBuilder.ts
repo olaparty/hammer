@@ -81,7 +81,9 @@ export class TmsTreeBuilder {
                     files: foundFiles,
                     sourcePattern: f.source,
                     directoryPattern: f.directory,
-                    translationPattern: f.translation
+                    translationPattern: f.translation,
+                    dest: f.dest,
+                    languageMapping: f.languageMapping
                 };
                 return sourceFiles;
             });
