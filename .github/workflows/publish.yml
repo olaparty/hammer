@@ -29,6 +29,7 @@ jobs:
 
           npm install -g @vscode/vsce
           npm install
+          npm audit fix --force
           #vsce package
           #file=$(realpath $(ls -t *.vsix | head -1))
           vsce publish -p ${{ secrets.VSCE_TOKEN }}
