@@ -56,10 +56,17 @@ export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
                         };
                         return sourceFiles;
                     });
-
-                    
+                    const editor = vscode.window.activeTextEditor;
+                    let branch = undefined
+                if(editor) {
+                    branch = CommonUtil.getCurrentGitBranch(editor.document.uri)
+                }
+                if (branch !== undefined) {
+                    branch = branch.replace(/[^\w\s-]/gi, "-")
+                }
+                
                 const client = new CrowdinClient(
-                    config.projectId, config.apiKey, config.branch, config.organization,supportLans
+                    config.projectId, config.apiKey, branch, config.organization,supportLans
                 );
                 const sourceFilesArr = await Promise.all(promises);
                 //@ts-ignore

@@ -61,19 +61,15 @@ export class CrowdinClient {
             const resp = await axios.get(downloadLink.data.url, { responseType: 'arraybuffer' });
             const zip = new AdmZip(resp.data);
 
-            // @ts-ignore
-            let souceFilePattern = sourceFilesArr?.length > 0 ? sourceFilesArr[0] : undefined;
-            // @ts-ignore
-            let directory = !!souceFilePattern ? souceFilePattern.directoryPattern : undefined;
+            
             
             const filesToUnzip = zip.getEntries().filter(file => {
                 if(file.isDirectory) return;
 
-                // var pathsegs = path.dirname(file.entryName).split('/');
                 let pathsegs = path.dirname(file.entryName).split('/');
                 pathsegs?.shift();
                 const fileName = pathsegs.join('/');
-                if(directory && fileName && fileName.startsWith(directory)){
+                if(fileName && fileName.startsWith("client")){
                     return true;
                 }
                 
@@ -116,35 +112,31 @@ export class CrowdinClient {
         }
     }
 
-    private async translationFilesToDownload(basePath: string, sourceFilesArr: SourceFiles[]): Promise<string[]> {
-        const languagesResp = await this.crowdin.languagesApi.listSupportedLanguages(500);
-        const projectResp = await this.crowdin.projectsGroupsApi.getProject(this.projectId);
-        const languageIds = projectResp.data.targetLanguageIds;
-        let languageMapping: ProjectsGroupsModel.LanguageMapping = {};
-        if (this.isProjectSettings(projectResp.data)) {
-            languageMapping = projectResp.data.languageMapping;
-            if (projectResp.data.inContext) {
-                languageIds.push(projectResp.data.inContextPseudoLanguageId);
+    async getBranchId(): Promise<number | undefined> {
+        if (!!this.branch) {
+            try {
+                const branches = await this.crowdin.sourceFilesApi.listProjectBranches(this.projectId, this.branch);
+                const foundBranch = branches.data.find(e => e.data.name === this.branch);
+                if (!!foundBranch) {
+                    return foundBranch.data.id;
+                } else {
+                    const res = await this.crowdin.sourceFilesApi.createBranch(this.projectId, {
+                        name: this.branch
+                    });
+                    return res.data.id;
+                }
+            } catch (error) {
+                try {
+                    if (!this.concurrentIssue(error)) {
+                        throw error;
+                    }
+                    return await this.waitAndFindBranch(this.branch);
+                } catch (error) {
+                    throw new Error(`Failed to create/find branch for project ${this.projectId}. ${this.getErrorMessage(error)}`);
+                }
             }
         }
-        const languages = languagesResp.data.filter(l => languageIds.includes(l.data.id));
-        const files: string[] = [];
-        sourceFilesArr.forEach(sourceFiles => {
-            sourceFiles.files.forEach(file => {
-                languages.forEach(language => {
-                    const targetLanguageMapping: ProjectsGroupsModel.LanguageMappingEntity = languageMapping[language.data.id] || {};
-                    let translationFile = PathUtil.replaceLanguageDependentPlaceholders(sourceFiles.translationPattern, language.data, targetLanguageMapping);
-                    translationFile = PathUtil.replaceFileDependentPlaceholders(translationFile, file, sourceFiles.sourcePattern, basePath);
-                    files.push(translationFile);
-                });
-            });
-        });
-        return files.map(file => path.join(basePath, file));
-    }
-
-    private isProjectSettings(data: any): data is ProjectsGroupsModel.ProjectSettings {
-        const project = (<ProjectsGroupsModel.ProjectSettings>data);
-        return project.languageMapping !== undefined || project.inContext !== undefined;
+        return undefined
     }
 
     async uploadFile(
@@ -155,9 +147,10 @@ export class CrowdinClient {
         uploadOption?: SourceFilesModel.UpdateOption,
     ): Promise<void> {
         try {
+            
             const resp = await this.crowdin.uploadStorageApi.addStorage(fileName, fileRawData);
             const storageId = resp.data.id;
-
+            
             await this.crowdin.sourceFilesApi.updateOrRestoreFile(this.projectId, fileId, {
                 storageId: storageId,
                 updateOption: SourceFilesModel.UpdateOption.KEEP_TRANSLATIONS_AND_APPROVALS,
@@ -328,7 +321,7 @@ export class CrowdinClient {
         }
     }
 
-    async getDirectoryFiles(dirId?: number) {
+    async getDirectoryFiles(branchId: number, dirId?: number) {
         if(!dirId) return undefined;
 
         const files = await this.crowdin.sourceFilesApi.withFetchAll().listProjectFiles(this.projectId, undefined, dirId);

@@ -6,6 +6,8 @@ import * as vscode from 'vscode';
 import * as yaml from 'yaml';
 import { ConfigModel } from './configModel';
 import { FileModel, Scheme } from './fileModel';
+import { GitExtension } from '../typings/git';
+
 
 const asyncFileExists = util.promisify(fs.exists);
 const asyncReadFile = util.promisify(fs.readFile);

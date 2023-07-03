@@ -1,6 +1,6 @@
 {
-    "name": "hammer",
-    "displayName": "Hammer",
+    "name": "winson-hammer",
+    "displayName": "winson-hammer",
     "description": "Hammer for Visual Studio Code",
     "publisher": "zhileichen",
     "version": "1.7.1", 
@@ -192,6 +192,9 @@
             ]
         }
     },
+    "extensionDependencies": [
+        "vscode.git"
+      ],
     "scripts": {
         "vscode:prepublish": "webpack --mode production",
         "webpack": "webpack --mode development",

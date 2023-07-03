@@ -1,10 +1,48 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { PathUtil } from './pathUtil';
+import { GitExtension } from '../typings/git';
 
 export type NullAsUndefined<T> = null extends T ? Exclude<T, null> | undefined : T;
 
 export class CommonUtil {
+
+    static getCurrentGitBranch(docUri: vscode.Uri): string | undefined {
+        const extension = vscode.extensions.getExtension<GitExtension>("vscode.git");
+        
+        if (!extension) {
+          console.warn("Git extension not available");
+          return undefined;
+        }
+        if (!extension.isActive) {
+          console.warn("Git extension not active");
+          return undefined;
+        }
+      
+        // "1" == "Get version 1 of the API". Version one seems to be the latest when I
+        // type this.
+        const git = extension.exports.getAPI(1);
+        const repository = git.getRepository(docUri);
+        if (!repository) {
+          console.warn("No Git repository for current document", docUri);
+          return undefined;
+        }
+      
+        const currentBranch = repository.state.HEAD;
+        if (!currentBranch) {
+          console.warn("No HEAD branch for current document", docUri);
+          return undefined;
+        }
+      
+        const branchName = currentBranch.name;
+        if (!branchName) {
+          console.warn("Current branch has no name", docUri, currentBranch);
+          return undefined;
+        }
+      
+        return branchName;
+      }
+    
 
     static withProgress<R>(
         task: () => Promise<any>,
