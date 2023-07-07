@@ -3,7 +3,7 @@
     "displayName": "hammer",
     "description": "Hammer for Visual Studio Code",
     "publisher": "zhileichen",
-    "version": "1.8.0", 
+    "version": "1.8.1", 
     "license": "MIT",
     "engines": {
         "vscode": "^1.35.0"
