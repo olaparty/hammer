@@ -14,7 +14,7 @@ import { locatePubspec } from "pubspec";
 
 const langs = ["dart"] as const;
 
-const APP_HOST = "https://flutter-preview.webview.vscode.grida.co/app"; // "http://localhost:6632";
+const APP_HOST = "https://flutter-preview.vercel.app/app"; // "http://localhost:6632";
 
 export class FlutterPreviewVSCode {
   readonly namespace: string;
