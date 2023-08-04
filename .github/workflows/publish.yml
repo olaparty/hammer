@@ -27,7 +27,7 @@ jobs:
           version_changed=$(git diff HEAD~1.. -- package.json | grep "version" || true)
           [ -z "$version_changed" ] && exit 0
 
-          yarn install -g @vscode/vsce
+          yarn global add @vscode/vsce
           yarn install
           #npm audit fix --force
           #vsce package
