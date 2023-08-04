@@ -1,0 +1,37 @@
+{
+  "name": "flutter-builder",
+  "private": true,
+  "workspaces": [
+    "*"
+  ],
+  "scripts": {
+    "version": "changeset",
+    "test": "yarn turbo run test --filter=!@examples/*",
+    "build": "yarn turbo run build --filter=!@examples/*",
+    "publish:all": "turbo run build lint test --filter=!@examples/* && changeset version && changeset publish",
+    "publish:flutter-builder": "turbo run build lint test --filter=@flutter-builder/* && changeset version && changeset publish",
+    "publish:flutter-daemon": "turbo run build lint test --filter=@flutter-daemon/* && changeset version && changeset publish",
+    "publish:flutter-preview": "turbo run build lint test --filter=!@examples/* --filter=!@flutter-builder/* && changeset version && changeset publish",
+    "dev:flutter-preview-webview": "turbo run flutter-preview-webview#dev",
+    "dev:flutter-preview-vscode": "turbo run dev --filter={flutter-preview/*}... --filter=!{flutter-preview/flutter-preview-vscode-extension} --parallel"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.26.0",
+    "@types/assert": "^1.5.6",
+    "@types/jest": "^29.4.0",
+    "@types/node": "latest",
+    "jest": "^29.4.1",
+    "ts-jest": "^29.0.5",
+    "tsup": "^6.5.0",
+    "turbo": "^1.7.4",
+    "typescript": "^4.9.5"
+  },
+  "resolutions": {
+    "typescript": "^4.9.5",
+    "tsup": "^6.5.0",
+    "turbo": "^1.7.4",
+    "jest": "^29.4.1",
+    "ts-jest": "^29.0.5"
+  },
+  "version": "0.1.0"
+}
