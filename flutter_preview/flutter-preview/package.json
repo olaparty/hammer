@@ -13,6 +13,7 @@
     "dev": "tsup --watch --sourcemap"
   },
   "dependencies": {
+    "@flutter-daemon/server": "^0.0.3",
     "chokidar": "^3.5.3",
     "fs-extra": "^11.1.0",
     "mkdirp": "^2.1.3",

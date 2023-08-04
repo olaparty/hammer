@@ -50,10 +50,10 @@ declare class FlutterPreviewProject implements IFlutterRunnerClient {
     webLaunchUrl(): Promise<string>;
     save(): Promise<unknown>;
     stop(): void;
-    on<K extends keyof AppEventMap>(type: K, callback: (e: AppEventMap[K]) => void): void;
+    on<K extends keyof AppEventMap>(type: K, callback: (e: AppEventMap[K]) => void): any;
     onEvent(cb: (type: any, event: any) => void): void;
     kill(): void;
-    restart(): Promise<unknown>;
+    restart(): any;
     rimraf(): void;
 }
 interface ITargetIdentifier {
