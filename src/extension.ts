@@ -12,6 +12,9 @@ import { genMobxCommand } from './plugin/generator/mobxstoreGenerator';
 import { enableNullSafety } from './plugin/nullsafety/enable_nullsafety';
 import { WrapObserverCodeActionProvider, wrapObserverCommand } from './plugin/diagnostics/wrapWithObserver';
 import { importImage } from './plugin/importImages/importImageAction';
+import __register_flutter_preview, {
+    deactivate as __deactivate_flutter_preview,
+  } from "./support-flutter-preview";
 
 export async function activate(context: vscode.ExtensionContext) {
     Constants.initialize(context);
@@ -49,7 +52,7 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('hammer.wrapObserver', args => wrapObserverCommand(args));
 
     vscode.commands.registerCommand('images.import', args => importImage(args));
-
+    __register_flutter_preview(context);
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration(Constants.AUTO_REFRESH_PROPERTY)) {
             configHolder.load();
@@ -75,3 +78,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
     diagnostics.init(context, undefined);
 }
+// this method is called when your extension is deactivated
+export function deactivate() {
+    __deactivate_flutter_preview();
+  }
+  
