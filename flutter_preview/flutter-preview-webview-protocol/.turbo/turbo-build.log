@@ -1,0 +1,13 @@
+$ tsup
+CLI Building entry: index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v6.5.0
+CLI Using tsup config: /Users/olachat/workspace/temp/gridaco-flutter/flutter-preview/flutter-preview-webview-protocol/tsup.config.ts
+CLI Target: es2016
+CLI Cleaning output folder
+CJS Build start
+CJS dist/index.js 673.00 B
+CJS ⚡️ Build success in 28ms
+DTS Build start
+DTS ⚡️ Build success in 3264ms
+DTS dist/index.d.ts 982.00 B

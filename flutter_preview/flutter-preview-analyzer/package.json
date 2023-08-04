@@ -1,0 +1,26 @@
+{
+  "name": "@flutter-preview/analyzer",
+  "version": "0.0.2",
+  "description": "Flutter Analyzer with flutter-ast for understanding flutter files, used by flutter preview",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "author": "Grida, Inc.",
+  "private": false,
+  "scripts": {
+    "test": "jest",
+    "build": "tsup",
+    "dev": "tsup --watch --sourcemap"
+  },
+  "dependencies": {
+    "flutter-ast": "^0.0.4-3"
+  },
+  "files": [
+    "dist",
+    "README",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -224,7 +224,7 @@
     },
     "dependencies": {
         "@crowdin/crowdin-api-client": "1.11.7",
-        "@vscode.grida.co/flutter-preview": "^0.0.2",
+        "@vscode.grida.co/flutter-preview": "file:flutter_preview/flutter-preview-vscode",
         "adm-zip": "^0.4.14",
         "glob": "^7.1.4",
         "original-fs": "^1.1.0",
