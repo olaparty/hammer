@@ -46,15 +46,15 @@ files:
 	- Run the extension in a new VS Code window
 
 ## Features
-- 基于proto生成dart model和API代码
+- Generate Dart models and API code based on proto
 ![proto2dart.gif](doc/proto2dart.gif)
-- 未翻译的文本检测和一键修复
+- Untranslated text detection and one-click correction
 ![text_quickfix.gif](doc/text_quickfix.gif)
-- 自定义规则检测不合规控件使用并一键修复 
+- Custom rule detection for improper control usage and one-click correction
 ![widget_quickfix.gif](doc/widget_quickfix.gif)
-- 图片文件快捷导入并压缩
+- Quick import and compression of image files
 ![widget_import_image.gif](doc/widget_import_image.gif)
-- 一键同步crowdin的翻译文本到本地项目
+- One-click synchronization of Crowdin's translated text to the local project
 ![download_intl.gif](doc/download_intl.gif)
-- 一键上传待翻译文本到crowdin
+- One-click upload of the text to be translated to Crowdin
 ![upload_intl.gif](doc/upload_intl.gif)
