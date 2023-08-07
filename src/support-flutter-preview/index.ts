@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import FlutterPreviewVSCode from "@vscode.grida.co/flutter-preview";
 
 const flutterPreview = new FlutterPreviewVSCode({
-  namespace: "grida-flutter",
+  namespace: "hammer",
 });
 
 export default function activate(context: vscode.ExtensionContext) {

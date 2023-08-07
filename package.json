@@ -22,6 +22,7 @@
         "Multi-language"
     ],
     "activationEvents": [
+        "onStartupFinished",
         "onView:localTranslations",
         "onLanguage:dart",
         "workspaceContains:*.dart",
@@ -62,6 +63,10 @@
             }
         ],
         "commands": [
+            {
+                "command": "hammer.showPreview",
+                "title": "[Hammer] Preview"
+            },
             {
                 "command": "localTranslations.create",
                 "title": "[Hammer] Convert to k.dart",
@@ -151,6 +156,13 @@
                     "command": "localTranslations.search",
                     "when": "view == localTranslations",
                     "group": "navigation@1"
+                }
+            ],
+            "editor/title": [
+                {
+                    "when": "hammer.componentsDetected",
+                    "command": "hammer.showPreview",
+                    "group": "navigation"
                 }
             ],
             "editor/context": [
