@@ -18,7 +18,7 @@ class FlutterPreview extends StatelessWidget {
       theme: ThemeData(),
       home: Scaffold(
           body: Center(
-        child: {{widget}}(),
+        child: {{widget}}({{param}}),
       )),
     );
   }

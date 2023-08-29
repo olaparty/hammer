@@ -22,7 +22,9 @@ declare class FlutterPreviewProject implements IFlutterRunnerClient {
     });
     logstatus(): void;
     private __initial_clone;
+    private trackImports;
     private abspath;
+    private decodeHtmlEntities;
     /**
      * override the main.dart file since we cannot customize the entry file for the daemon proc
      */
@@ -60,6 +62,7 @@ interface ITargetIdentifier {
     path: string;
     identifier: string;
     constructor: string;
+    param: string;
 }
 
 export { FlutterPreviewProject, ITargetIdentifier };

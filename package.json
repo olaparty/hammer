@@ -103,6 +103,10 @@
                 "title": "[Hammer] re-generate dart"
             },
             {
+                "command": "preview.show",
+                "title": "[Hammer] preview"
+            },
+            {
                 "command": "localTranslations.search",
                 "title": "Search translations in siderbar",
                 "icon": {
@@ -170,6 +174,11 @@
                     "group": "HammerGroup@0"
                 },
                 {
+                    "command": "preview.show",
+                    "when": "editorTextFocus && resourceExtname == .dart",
+                    "group": "HammerGroup@0"
+                },
+                {
                     "command": "localTranslations.upload.json",
                     "when": "editorTextFocus && resourceFilename =~  /.json/",
                     "group": "HammerGroup@0"
@@ -186,7 +195,7 @@
                 },
                 {
                     "command": "localTranslations.upload",
-                    "when": "editorTextFocus && editorLangId == dart && resourcePath =~  /^((?!packages/flutter/lib/src)(?!twirp.dart).)*$/",
+                    "when": "editorTextFocus && editorLangId == dart && resourcePath =~ /^((?!packages/flutter/lib/src)(?!twirp.dart).)*$/",
                     "group": "HammerGroup@0"
                 }
             ]

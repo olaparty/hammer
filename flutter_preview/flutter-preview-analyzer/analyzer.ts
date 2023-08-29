@@ -7,6 +7,8 @@ export class Analyzer {
   widgets(): WidgetAnalysis[] {
     assert(this.text, "Analyzer: text is empty");
 
+    console.log("ast", ast.parse(this.text));
+
     // StatefulWidget or StatelessWidget
     const res = ast.parse(this.text);
     if (res.errors?.length || !res.file) {

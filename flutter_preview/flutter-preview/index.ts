@@ -7,12 +7,14 @@ import rimraf from "rimraf";
 import mustache from "mustache";
 import ast, { DartImport } from "flutter-ast";
 import * as pubspec from "pubspec";
+import * as yaml from 'js-yaml';
 import {
   AppEventMap,
   FlutterProject,
   IFlutterRunnerClient,
 } from "@flutter-daemon/server";
 import * as templates from "./templates";
+import * as he from 'he';
 
 interface IFlutterPreviewWidgetClass {
   /**
@@ -54,6 +56,7 @@ class FlutterPreviewWidgetClass implements IFlutterPreviewWidgetClass {
   path: string;
   identifier: string;
   constructorName: string;
+  param: string;
 
   get imports(): DartImport[] {
     // TODO: add caching
@@ -81,10 +84,12 @@ class FlutterPreviewWidgetClass implements IFlutterPreviewWidgetClass {
     });
   }
 
-  constructor({ path, identifier, constructor }: ITargetIdentifier) {
+
+  constructor({ path, identifier, constructor, param }: ITargetIdentifier) {
     this.path = path;
     this.identifier = identifier;
     this.constructorName = constructor;
+    this.param = param;
   }
 
   static from(p: ITargetIdentifier) {
@@ -167,6 +172,52 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
         safeSymlink(originfile, target);
       }
     });
+
+    // analyse the temp dart file to get related import
+    const imports = ast.parse(this.originMainProxy).file.imports;
+    const importString = [];
+    console.log('pub test',imports);
+    imports.forEach((element) => {
+      var fullPathUri = this.trackImports(element.uri);
+      if (fullPathUri !== '') {
+        importString.push(element.uri);
+      }
+    });
+    console.log('pub test importString',importString);
+
+    // make pubspec file with needed imports as external_lib
+    const originPubspec = pubspec.parse(fs.readFileSync(this.pubspecFile, "utf-8"));
+    for(const resoution in originPubspec.dependencies) {
+      resoution['path'] = './';
+      // if(resoution.hasOwnProperty('path')){
+        // resoution['path'].replace('../','external_lib/')
+      // }
+    }
+    console.log('pub test originPubspec',originPubspec);
+    const newpubspecString = yaml.dump(originPubspec);
+    const pubspecPath = path.join(this.pubspecFile, 'pubspec.yaml');
+    // fs.writeFileSync(pubspecPath, newpubspecString, 'utf-8');
+  }
+
+  private trackImports(imp: string): string {
+    var libName = imp.split('package:')[1].split('/')[0];
+    const packageConfigPath = '.dart_tool/package_config.json';
+    console.log('pub test packageConfigPath',packageConfigPath);
+    const packageConfigContent = fs.readFileSync(packageConfigPath, "utf-8");
+    const packageConfigJson = JSON.parse(packageConfigContent);
+    const packages = packageConfigJson.packages;
+    if (packages != null && Array.isArray(packages)) {
+      for (const pack of packages) {
+        const packageName = pack.name;
+        const packageUri = pack.rootUri;
+        if (packageName === libName) {
+          const originfile = path.join(this.origin, path.join('lib',packageName));
+          // safeSymlink(originfile, packageUri);
+          return packageUri;
+        }
+      }
+    }
+    return '';
   }
 
   private abspath(p: string) {
@@ -174,6 +225,10 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
       return p;
     }
     return path.join(this.root, p);
+  }
+
+  private decodeHtmlEntities(encodedString: string): string {
+    return he.decode(encodedString);
   }
 
   /**
@@ -213,20 +268,27 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
 
       // add the target node as import
       // make it relative to lib/main.dart -> e.g. './src/demo.dart'
+      console.log('mustache render Path:', path.relative(path.join(this.root, "./lib"), this.abspath(target)));
+      // var realPpathath =  fs.realpath(path.relative(path.join(this.root, "./lib"), this.abspath(target)));
+      // console.log('mustache render realPath:', realPath);
       _seed_imports.add(
         path.relative(path.join(this.root, "./lib"), this.abspath(target))
       );
     }
 
     // render the template
+    console.log('mustache render imports:', _seed_imports);
     const main_dart_src = mustache.render(templates.main_dart_mustache, {
       imports: Array.from(_seed_imports),
       title: "Preview - " + this.m_target.identifier,
       widget: this.m_target.initializationName,
+      param: this.m_target.param,
     });
 
+    console.log('mustache render whole template:', this.decodeHtmlEntities(main_dart_src).replace('&#39;', '"'));
+
     // write the file
-    fs.writeFileSync(this.main, main_dart_src);
+    fs.writeFileSync(this.main, this.decodeHtmlEntities(main_dart_src).replace('&#39;', '"'));
   }
 
   private resolve_assets() {
@@ -321,9 +383,9 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
     if (
       path.isAbsolute(_path)
         ? // if absolute path, check if the target is main.dart under the <origin>/lib/main.dart
-          mainDartFileOf(this.origin) === _path
+        mainDartFileOf(this.origin) === _path
         : // if relative path, check if the target is "main.dart" or "./main.dart"
-          _path === "main.dart" || _path === "./main.dart"
+        _path === "main.dart" || _path === "./main.dart"
     ) {
       relative = "main.dart";
     } else {
@@ -433,4 +495,5 @@ export interface ITargetIdentifier {
   path: string;
   identifier: string;
   constructor: string;
+  param: string;
 }

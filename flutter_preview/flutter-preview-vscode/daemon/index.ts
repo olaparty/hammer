@@ -32,6 +32,7 @@ export class FlutterDaemon {
   }
 
   async target(_: ITargetIdentifier) {
+    console.log('target call','targetIdentifier')
     FlutterDaemon.project.target(_);
     this.restart();
   }

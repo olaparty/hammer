@@ -15,6 +15,7 @@ import { importImage } from './plugin/importImages/importImageAction';
 import __register_flutter_preview, {
     deactivate as __deactivate_flutter_preview,
   } from "./support-flutter-preview";
+import { showPreviewComand } from './plugin/preview/show_preview';
 
 export async function activate(context: vscode.ExtensionContext) {
     Constants.initialize(context);
@@ -41,6 +42,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // vscode.commands.registerCommand('translationProgress.refresh', () => progressProvider.refresh());
     vscode.commands.registerCommand('generator.mobx', args => genMobxCommand(args));
+    vscode.commands.registerCommand('preview.show', args => showPreviewComand(args));
     vscode.commands.registerCommand('generator.proto', args => genProtoCommand(args));
     vscode.commands.registerCommand('generator.proto.update', args => {
         const uri = args as vscode.Uri;
