@@ -1,0 +1,192 @@
+# pls copy simplified root level pubspec here. and init the necessary depedencies
+
+name: banban
+description: pt app.
+publish_to: none
+baseName: banban_base
+
+version: 5.9.0+1
+
+environment:
+  sdk: ">=2.8.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  bbcore:
+    path: ./banban_base/bbcore
+  chat:
+    path: ./banban_base/chat
+  draw_guess:
+    path: ./banban_base/draw_guess
+  login:
+    path: ./banban_base/login
+  pay:
+    path: ./banban_base/pay
+  vip:
+    path: ./banban_base/vip
+  certificate:
+    path: ./banban_base/certificate
+  settings:
+    path: ./banban_base/settings
+  rank:
+    path: ./banban_base/rank
+  order:
+    path: ./banban_base/order
+  search:
+    path: ./banban_base/search
+  fleet:
+    path: ./banban_base/fleet
+  video:
+    path: ./banban_base/video
+  group:
+    path: ./banban_base/group
+  bbroom:
+    path: ./banban_base/bbroom
+  agora:
+    git:
+      url: git@github.com:olaola-chat/cli-bbrtc.git
+      ref: 1.1.5
+      path: flutter_banban_agora
+  bbrtcsdk:
+    git:
+      url: git@github.com:olaola-chat/cli-bbrtc.git
+      ref: 1.1.5
+      path: flutter_banban_rtc
+  category_selector:
+    path: ./banban_base/category_selector
+  personaldata:
+    path: ./banban_base/personaldata
+  gift:
+    path: ./banban_base/gift
+  premade:
+    path: ./banban_base/premade
+  # research:
+  #   git:
+  #     url: http://114.55.7.123:3000/client_modules/user_survey.git
+  #     ref: 8cb2b50caa448ab9bca00930d73ba154aff7e337
+  platform_line:
+    path: ./banban_base/platform_line
+  platform_apple:
+    path: ./banban_base/platform_apple
+  platform_facebook:
+    path: ./banban_base/platform_facebook
+  platform_google:
+    path: ./banban_base/platform_google
+  platform_ins:
+    path: ./banban_base/platform_ins
+  platform_twitter:
+    path: ./banban_base/platform_twitter
+  platform_snapchat:
+    path: ./banban_base/platform_snapchat
+  platform_naver:
+    path: ./banban_base/platform_naver
+  platform_whatsapp:
+    path: ./banban_base/platform_whatsapp
+  #  platform_qq:
+  #    path: ./banban_base/platform_qq
+  #  platform_wechat:
+  #    path: ./banban_base/platform_wechat
+  killer:
+    path: ./banban_base/killer
+  moment:
+    path: ./banban_base/moment
+  music:
+    path: ./banban_base/music
+  message:
+    path: ./banban_base/message
+  profile:
+    path: ./banban_base/profile
+  #  rush:
+  #    path: ./banban_base/rush
+  flutter_share:
+    path: ./banban_base/bbcore/.vendors/flutter_share
+  were_wolf:
+    path: ./banban_base/were_wolf
+
+  #即构小游戏
+#  room_zego_games:
+#    path: ./banban_base/bbroom/plugins/room_zego_games
+
+  # ios使用高德定位，android使用系统定位
+  location_system:
+    path: ./banban_base/location_system
+
+  cipher:
+    path: ./banban_base/cipher
+    
+  flutter_branch:
+    path: ./banban_base/bbcore/.vendors/flutter_branch
+
+#  in_app_update: 1.1.11
+  # screenshot_callback:
+  #   path: ./banban_base/bbcore/.vendors/flutter_screenshot_callback/
+
+  ## 使用厂商push，还是FCM push
+  # FCM push
+  flutter_banban_push_fcm:
+    path: ./banban_base/bbcore/.vendors/flutter_banban_push/flutter_banban_push_fcm
+  # 国内厂商 push
+  #flutter_banban_push_vendors:
+  #  path: ./banban_base/bbcore/.vendors/flutter_banban_push/flutter_banban_push_vendors/
+
+  #Firebase
+  # firebase_core: 2.10.0
+  # firebase_analytics: 10.2.1
+  # firebase_crashlytics: 3.1.2
+  # firebase_remote_config: 3.0.15
+  # firebase_core_platform_interface: 4.6.0
+
+#  mmkv: ">=1.2.13"
+  mmkv_kvstore:
+    git:
+      url: git@github.com:olaola-chat/cli-kvstore.git
+      path: mmkv_kvstore
+      ref: master
+
+# # BI 的归因上报
+#   base_attr_report:
+#     git:
+#       url: git@github.com:olaola-chat/cli-bb_attr_report.git
+#       ref: 0.3.0
+
+  bbgame_core:
+    path: ./banban_base/bbgame/bbgame_core
+  bbgame_room:
+    path: ./banban_base/bbgame/bbgame_room
+  # bbgame_uno:
+  #   path: ./banban_base/bbgame/bbgame_uno
+
+  # CP小屋
+  cp_hut:
+    path: ./banban_base/cp_hut
+dependency_overrides:
+  permission_handler:
+    path: ./banban_base/bbcore/.vendors/permission_handler/
+  plugin_platform_interface: 2.1.2
+  device_info_plus_platform_interface: 2.3.0+1
+  flame:
+    path: ./banban_base/bbgame/bbgame_uno/packages/flame-1.1.1/
+  extended_tabs: 4.0.1
+  path_provider: 2.0.14
+  path_provider_android: 2.0.24
+  shared_preferences_android: 2.0.15
+  image: 4.0.15
+  flutter_svg:
+    git:
+      url: git@github.com:olaola-chat/flutter_svg.git
+      ref: 0.0.1
+
+assets_gen:
+  gen_package_path: false
+  omit_path_levels: 2
+  exclude:
+    - assets/generated/**
+    - assets/module/**
+    - assets/locale/**
+
+# Font and assets import only import from sub module
+
+  uses-material-design: true

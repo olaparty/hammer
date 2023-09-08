@@ -22,6 +22,7 @@ declare class FlutterPreviewProject implements IFlutterRunnerClient {
     });
     logstatus(): void;
     private __initial_clone;
+    private fileExists;
     private trackImports;
     private abspath;
     private decodeHtmlEntities;
@@ -29,6 +30,7 @@ declare class FlutterPreviewProject implements IFlutterRunnerClient {
      * override the main.dart file since we cannot customize the entry file for the daemon proc
      */
     private override_main_dart;
+    private symLinkFolderRecursiveSync;
     private resolve_assets;
     /**
      * the main entry file, e.g. '~/root/lib/main.dart'

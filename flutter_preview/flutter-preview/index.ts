@@ -15,6 +15,7 @@ import {
 } from "@flutter-daemon/server";
 import * as templates from "./templates";
 import * as he from 'he';
+import { symlink, symlinkSync } from "fs";
 
 interface IFlutterPreviewWidgetClass {
   /**
@@ -117,6 +118,9 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
 
   readonly client: FlutterProject;
 
+  // <depName,path>
+  // private dependencyMap = new Map<string,string>(); 
+
   constructor({
     origin,
     target,
@@ -137,12 +141,15 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
         dir: path.dirname(this.main),
       }) + ".dart";
 
+    this.target(target);
+
     // initially clone the files to new virtual project
     this.__initial_clone(); // uses copy -> this may change to symlink in the future
     this.resolve_assets(); // uses symlink
 
     // target the widget (modifies the lib/main.dart)
-    this.target(target);
+    // this.target(target);
+    this.override_main_dart();
 
     this.client = FlutterProject.at(this.root);
 
@@ -160,49 +167,108 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
 
   private __initial_clone() {
     // copy the files to the root (write files)
+    console.log('safe sym lnk target', path.join(this.origin, this.m_target.path));
+    safeSymlink(path.join(this.origin, this.m_target.path), this.originMainProxy);
+    safeSymlink(path.join('/Users/olachat/Downloads/DevSpaces/partying-app', 'lib'), path.join(this.root, 'lib_main/lib'));
+    safeSymlink(path.join('/Users/olachat/Downloads/DevSpaces/partying-app', 'banban_base'), path.join(this.root, 'lib_main/banban_base'));
+    safeSymlink('/Users/olachat/Downloads/DevSpaces/hammer/flutter_preview/flutter-preview/templates/pubspec_init.yaml',
+      path.join(this.root, 'lib_main/pubspec.yaml'));
     this.initialCloneTargets.forEach((file) => {
       const originfile = path.join(this.origin, file);
-
       // if file is main.dart connect to a special file.
       if (this.abspath(file) === this.main) {
-        // symlink the main.dart to the originMainProxy file
-        safeSymlink(originfile, this.originMainProxy);
+        // symlink the main.dart to the originMainProxy filedart_tool/package_config.json
+        // safeSymlink(originfile, this.originMainProxy);
       } else {
         const target = path.join(this.root, file);
         safeSymlink(originfile, target);
       }
     });
 
+    console.log('pub test view', this.originMainProxy);
+    console.log('pub test view', this.origin);
+    console.log('pub test view', this.main);
+
     // analyse the temp dart file to get related import
-    const imports = ast.parse(this.originMainProxy).file.imports;
+    // const imports = this.m_target.imports;
+    const _text = fs.readFileSync(this.originMainProxy, "utf-8");
+    const imports = ast.parse(_text).file.imports;
     const importString = [];
-    console.log('pub test',imports);
+    console.log('pub test', imports);
     imports.forEach((element) => {
       var fullPathUri = this.trackImports(element.uri);
       if (fullPathUri !== '') {
         importString.push(element.uri);
       }
     });
-    console.log('pub test importString',importString);
+    console.log('pub test importString', importString);
+
+
 
     // make pubspec file with needed imports as external_lib
-    const originPubspec = pubspec.parse(fs.readFileSync(this.pubspecFile, "utf-8"));
-    for(const resoution in originPubspec.dependencies) {
-      resoution['path'] = './';
+    const originPubspec = pubspec.parse(fs.readFileSync(path.join(this.origin, 'pubspec.yaml'), "utf-8"));
+    // set up the common override dependency
+    if (!originPubspec.dependency_overrides) {
+      originPubspec.dependency_overrides = {};
+    }
+    originPubspec.dependency_overrides['path_provider'] = '2.0.14'
+    originPubspec.dependency_overrides['permission_handler'] = { path: './banban_base/bbcore/.vendors/permission_handler/' }
+    originPubspec.dependency_overrides['plugin_platform_interface'] = '2.12'
+    originPubspec.dependency_overrides['device_info_plus_platform_interface'] = '2.3.0+1'
+    originPubspec.dependency_overrides['flame'] = { path: ' ./banban_base/bbgame/bbgame_uno/packages/flame-1.1.1/' }
+    originPubspec.dependency_overrides['extended_tabs'] = '4.0.1'
+    originPubspec.dependency_overrides['image'] = '4.0.15'
+    originPubspec.dependency_overrides['flutter_svg'] = "git: { url: git@github.com:olaola-chat/flutter_svg.git, ref: 0.0.1 }"
+    console.log('pub test resolution', originPubspec.dependencies);
+    for (const dependencyName in originPubspec.dependencies) {
+      console.log('pub test dep name', originPubspec.dependencies[dependencyName]);
+      if ((originPubspec.dependencies[dependencyName] as any).path != null) {
+        console.log('.. path', (originPubspec.dependencies[dependencyName] as any).path);
+        (originPubspec.dependencies[dependencyName])['path'] = path.join(this.origin, (originPubspec.dependencies[dependencyName] as any).path);
+        console.log('.. path final', path.join(this.origin, (originPubspec.dependencies[dependencyName] as any).path));
+        // originPubspec.dependencies[dependencyName].toString().replace('../','./');
+      }
+      // if (originPubspec.dependencies.hasOwnProperty(dependencyName) && originPubspec.dependencies[dependencyName].toString().includes('path')) {
+      //   if (importString.some((importLine) => importLine.includes(dependencyName))) {
+      //     originPubspec.dependencies[dependencyName] = './'
+      //     console.log(`pub test Dependency name: ${dependencyName}`);
+      //   } else {
+      //     originPubspec.dependencies[dependencyName] = '';
+      //   }
+      // }
+      // resolution.path = './';
       // if(resoution.hasOwnProperty('path')){
-        // resoution['path'].replace('../','external_lib/')
+      // resoution['path'].replace('../','external_lib/')
       // }
     }
-    console.log('pub test originPubspec',originPubspec);
+    // add main project pubspec ref for init purpose
+    originPubspec.dependencies['banban'] = { path: './lib_main' }
+    console.log('pub test originPubspec', originPubspec);
     const newpubspecString = yaml.dump(originPubspec);
-    const pubspecPath = path.join(this.pubspecFile, 'pubspec.yaml');
-    // fs.writeFileSync(pubspecPath, newpubspecString, 'utf-8');
+    const pubspecPath = path.join(this.main, '../../pubspec.yaml');
+    console.log('pub test final', pubspecPath);
+    fs.writeFileSync(pubspecPath, newpubspecString, 'utf-8');
   }
 
+  private fileExists(filePath: string): boolean {
+    try {
+      fs.accessSync(filePath, fs.constants.F_OK); // Check if the file exists
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+
   private trackImports(imp: string): string {
-    var libName = imp.split('package:')[1].split('/')[0];
-    const packageConfigPath = '.dart_tool/package_config.json';
-    console.log('pub test packageConfigPath',packageConfigPath);
+    console.log('pub error', imp);
+    var libName = '';
+    if (imp.includes('package')) {
+      libName = imp.split('package:')[1].split('/')[0];
+    }
+    const packageConfigPath = path.join('/Users/olachat/Downloads/DevSpaces/partying-app', '.dart_tool/package_config.json');
+    // const packageConfigPath = path.join(this.origin, '.dart_tool/package_config.json');
+    console.log('pub test packageConfigPath', packageConfigPath);
     const packageConfigContent = fs.readFileSync(packageConfigPath, "utf-8");
     const packageConfigJson = JSON.parse(packageConfigContent);
     const packages = packageConfigJson.packages;
@@ -211,8 +277,12 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
         const packageName = pack.name;
         const packageUri = pack.rootUri;
         if (packageName === libName) {
-          const originfile = path.join(this.origin, path.join('lib',packageName));
-          // safeSymlink(originfile, packageUri);
+          const atFile = path.join(this.originMainProxy, path.join('../', packageName));
+          console.log('pub test safesymlink target path', packageUri);
+          console.log('pub test safesymlink atpath', atFile);
+          if (!this.fileExists(atFile) && packageName != 'flutter') {
+            safeSymlink(packageUri, atFile);
+          }
           return packageUri;
         }
       }
@@ -291,7 +361,33 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
     fs.writeFileSync(this.main, this.decodeHtmlEntities(main_dart_src).replace('&#39;', '"'));
   }
 
+  private symLinkFolderRecursiveSync(source: string, target: string) {
+    if (!fs.existsSync(target)) {
+      mkdirp.sync(target);
+    }
+
+    const files = fs.readdirSync(source);
+
+    for (const file of files) {
+      const sourcePath = path.join(source, file);
+      const targetPath = path.join(target, file);
+
+      const isDirectory = fs.lstatSync(sourcePath).isDirectory();
+
+      if (isDirectory) {
+        fs.mkdirSync(target);
+        this.symLinkFolderRecursiveSync(sourcePath, targetPath);
+      } else {
+        safeSymlink(sourcePath, targetPath);
+      }
+    }
+  }
+
   private resolve_assets() {
+
+    const origin = path.join('/Users/olachat/Downloads/DevSpaces/partying-app', 'assets');
+    const target = path.join(this.root, 'lib_main/assets');
+    symlinkSync(origin, target);
     // if the pubspec.yaml file has assets, copy them to the root (in this case, we can use symlinks)
     // Learn more about the spec - https://docs.flutter.dev/development/tools/pubspec
     //
@@ -307,13 +403,15 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
     //  ....
 
     const files = [...this.assets, ...this.fontFiles];
+    // console.log('files listed', files);
 
     files.forEach((asset) => {
       const origin = path.join(this.origin, asset);
       const target = path.join(this.root, asset);
 
       // create a symlink
-      safeSymlink(origin, target);
+      this.symLinkFolderRecursiveSync(origin, target);
+      // safeSymlink(origin, target);
     });
   }
 
@@ -349,7 +447,7 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
   get srcfiles() {
     return [
       // pubspec.yaml
-      ...glob.sync("pubspec.yaml", { cwd: this.origin }),
+      // ...glob.sync("pubspec.yaml", { cwd: this.origin }),
       // lib files
       ...glob.sync("lib/**/*", { cwd: this.origin, nodir: true }),
     ];
@@ -409,7 +507,6 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
       ...others,
     });
 
-    this.override_main_dart();
   }
 
   // #region IFlutterRunnerClient
@@ -473,9 +570,13 @@ function safeSymlink(target: string, at: string) {
   // handle ENOENT: no such file or directory
   // handle ENOENT: no such file or directory, mkdir
   // the above error can happen if the target file is nested inside a folder
-  mkdirp.sync(path.dirname(at));
+  try {
+    mkdirp.sync(path.dirname(at));
+    fs.symlinkSync(target, at);
+  } catch (e) {
+    console.log('mkdir err', e);
+  }
 
-  fs.symlinkSync(target, at);
 }
 
 function removeMainMethod(src: string) {
