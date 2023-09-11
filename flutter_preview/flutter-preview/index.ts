@@ -118,6 +118,8 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
 
   readonly client: FlutterProject;
 
+  private targetProjectPath: string = '/Users/olachat/Downloads/DevSpaces/partying-app';
+
   // <depName,path>
   // private dependencyMap = new Map<string,string>(); 
 
@@ -140,6 +142,9 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
       tmp.tmpNameSync({
         dir: path.dirname(this.main),
       }) + ".dart";
+
+    this.targetProjectPath = this.findMainDart(this.origin);
+    console.log('origin project root path', this.targetProjectPath);
 
     this.target(target);
 
@@ -165,14 +170,31 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
     });
   }
 
+  private findMainDart(currentPath: string): string | null {
+    const mainDartPath = path.join(currentPath, 'lib/main.dart');
+    console.log('recursive parent path:', mainDartPath);
+
+    if (fs.existsSync(mainDartPath)) {
+      return mainDartPath.replace('lib/main.dart', '');
+    }
+
+    const parentDir = path.dirname(currentPath);
+
+    // Check if we've reached the root directory
+    if (parentDir === currentPath) {
+      return null; // Main.dart not found
+    }
+
+    return this.findMainDart(parentDir); // Recursively go up one directory
+  }
+
   private __initial_clone() {
     // copy the files to the root (write files)
     console.log('safe sym lnk target', path.join(this.origin, this.m_target.path));
     safeSymlink(path.join(this.origin, this.m_target.path), this.originMainProxy);
-    safeSymlink(path.join('/Users/olachat/Downloads/DevSpaces/partying-app', 'lib'), path.join(this.root, 'lib_main/lib'));
-    safeSymlink(path.join('/Users/olachat/Downloads/DevSpaces/partying-app', 'banban_base'), path.join(this.root, 'lib_main/banban_base'));
-    safeSymlink('/Users/olachat/Downloads/DevSpaces/hammer/flutter_preview/flutter-preview/templates/pubspec_init.yaml',
-      path.join(this.root, 'lib_main/pubspec.yaml'));
+    safeSymlink(path.join(this.targetProjectPath, 'lib'), path.join(this.root, 'lib_main/lib'));
+    safeSymlink(path.join(this.targetProjectPath, 'banban_base'), path.join(this.root, 'lib_main/banban_base'));
+    safeSymlink('./templates/pubspec_init.yaml', path.join(this.root, 'lib_main/pubspec.yaml'));
     this.initialCloneTargets.forEach((file) => {
       const originfile = path.join(this.origin, file);
       // if file is main.dart connect to a special file.
@@ -218,7 +240,7 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
     originPubspec.dependency_overrides['flame'] = { path: ' ./banban_base/bbgame/bbgame_uno/packages/flame-1.1.1/' }
     originPubspec.dependency_overrides['extended_tabs'] = '4.0.1'
     originPubspec.dependency_overrides['image'] = '4.0.15'
-    originPubspec.dependency_overrides['flutter_svg'] = "git: { url: git@github.com:olaola-chat/flutter_svg.git, ref: 0.0.1 }"
+    originPubspec.dependency_overrides['flutter_svg'] = "{ git: { url: 'git@github.com:olaola-chat/flutter_svg.git', ref: '0.0.1' } }"
     console.log('pub test resolution', originPubspec.dependencies);
     for (const dependencyName in originPubspec.dependencies) {
       console.log('pub test dep name', originPubspec.dependencies[dependencyName]);
@@ -266,7 +288,7 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
     if (imp.includes('package')) {
       libName = imp.split('package:')[1].split('/')[0];
     }
-    const packageConfigPath = path.join('/Users/olachat/Downloads/DevSpaces/partying-app', '.dart_tool/package_config.json');
+    const packageConfigPath = path.join(this.targetProjectPath, '.dart_tool/package_config.json');
     // const packageConfigPath = path.join(this.origin, '.dart_tool/package_config.json');
     console.log('pub test packageConfigPath', packageConfigPath);
     const packageConfigContent = fs.readFileSync(packageConfigPath, "utf-8");
@@ -385,7 +407,7 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
 
   private resolve_assets() {
 
-    const origin = path.join('/Users/olachat/Downloads/DevSpaces/partying-app', 'assets');
+    const origin = path.join(this.targetProjectPath, 'assets');
     const target = path.join(this.root, 'lib_main/assets');
     symlinkSync(origin, target);
     // if the pubspec.yaml file has assets, copy them to the root (in this case, we can use symlinks)

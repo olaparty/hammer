@@ -16,11 +16,13 @@ declare class FlutterPreviewProject implements IFlutterRunnerClient {
      */
     private readonly originMainProxy;
     readonly client: FlutterProject;
+    private targetProjectPath;
     constructor({ origin, target, }: {
         origin: string;
         target: ITargetIdentifier;
     });
     logstatus(): void;
+    private findMainDart;
     private __initial_clone;
     private fileExists;
     private trackImports;
