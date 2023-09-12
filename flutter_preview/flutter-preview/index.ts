@@ -6,7 +6,7 @@ import { mkdirp } from "mkdirp";
 import rimraf from "rimraf";
 import mustache from "mustache";
 import ast, { DartImport } from "flutter-ast";
-import * as pubspec from "pubspec";
+import * as pubspec from "./pubspec";
 import * as yaml from 'js-yaml';
 import {
   AppEventMap,
@@ -234,37 +234,26 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
       originPubspec.dependency_overrides = {};
     }
     originPubspec.dependency_overrides['path_provider'] = '2.0.14'
-    originPubspec.dependency_overrides['permission_handler'] = { path: './banban_base/bbcore/.vendors/permission_handler/' }
-    originPubspec.dependency_overrides['plugin_platform_interface'] = '2.12'
+    originPubspec.dependency_overrides['permission_handler'] = { path: './lib_main/banban_base/bbcore/.vendors/permission_handler/' }
+    originPubspec.dependency_overrides['plugin_platform_interface'] = '2.1.2'
     originPubspec.dependency_overrides['device_info_plus_platform_interface'] = '2.3.0+1'
-    originPubspec.dependency_overrides['flame'] = { path: ' ./banban_base/bbgame/bbgame_uno/packages/flame-1.1.1/' }
+    originPubspec.dependency_overrides['flame'] = { path: './lib_main/banban_base/bbgame/bbgame_uno/packages/flame-1.1.1/' }
     originPubspec.dependency_overrides['extended_tabs'] = '4.0.1'
     originPubspec.dependency_overrides['image'] = '4.0.15'
-    originPubspec.dependency_overrides['flutter_svg'] = "{ git: { url: 'git@github.com:olaola-chat/flutter_svg.git', ref: '0.0.1' } }"
+    originPubspec.dependency_overrides['flutter_svg'] = { git: { url: 'git@github.com:olaola-chat/flutter_svg.git', ref: '0.0.1' } }
     console.log('pub test resolution', originPubspec.dependencies);
-    for (const dependencyName in originPubspec.dependencies) {
-      console.log('pub test dep name', originPubspec.dependencies[dependencyName]);
-      if ((originPubspec.dependencies[dependencyName] as any).path != null) {
-        console.log('.. path', (originPubspec.dependencies[dependencyName] as any).path);
-        (originPubspec.dependencies[dependencyName])['path'] = path.join(this.origin, (originPubspec.dependencies[dependencyName] as any).path);
-        console.log('.. path final', path.join(this.origin, (originPubspec.dependencies[dependencyName] as any).path));
-        // originPubspec.dependencies[dependencyName].toString().replace('../','./');
-      }
-      // if (originPubspec.dependencies.hasOwnProperty(dependencyName) && originPubspec.dependencies[dependencyName].toString().includes('path')) {
-      //   if (importString.some((importLine) => importLine.includes(dependencyName))) {
-      //     originPubspec.dependencies[dependencyName] = './'
-      //     console.log(`pub test Dependency name: ${dependencyName}`);
-      //   } else {
-      //     originPubspec.dependencies[dependencyName] = '';
-      //   }
+    originPubspec.dependencies = {};
+    // for (const dependencyName in originPubspec.dependencies) {
+      // console.log('pub test dep name', originPubspec.dependencies[dependencyName]);
+      // if ((originPubspec.dependencies[dependencyName] as any).path != null) {
+      //   console.log('.. path', (originPubspec.dependencies[dependencyName] as any).path);
+      //   (originPubspec.dependencies[dependencyName])['path'] = path.join(this.origin, (originPubspec.dependencies[dependencyName] as any).path);
+      //   console.log('.. path final', path.join(this.origin, (originPubspec.dependencies[dependencyName] as any).path));
+      //   // originPubspec.dependencies[dependencyName].toString().replace('../','./');
       // }
-      // resolution.path = './';
-      // if(resoution.hasOwnProperty('path')){
-      // resoution['path'].replace('../','external_lib/')
-      // }
-    }
+    // }
     // add main project pubspec ref for init purpose
-    originPubspec.dependencies['banban'] = { path: './lib_main' }
+    originPubspec.dependencies['banban'] = { path: this.targetProjectPath }
     console.log('pub test originPubspec', originPubspec);
     const newpubspecString = yaml.dump(originPubspec);
     const pubspecPath = path.join(this.main, '../../pubspec.yaml');
