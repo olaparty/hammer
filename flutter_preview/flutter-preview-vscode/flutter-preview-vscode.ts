@@ -159,7 +159,7 @@ async function cmd_dart_preview_handler(
     for (const key in input) {
       if (input.hasOwnProperty(key)) {
         const value = input[key];
-        if (params.filter((param: any) => param.name === key)[0]?.type === 'String') {
+        if (params.filter((param:any) => param.name === key)[0]?.type === 'String') {
           keyValuePairs += `${key}:'${value}',`;
         } else {
           keyValuePairs += `${key}:${value},`;
@@ -252,8 +252,8 @@ async function cmd_dart_preview_handler(
             const paramString = convertObjectToPairs(e.data, params);
             console.log("proto param string:", paramString);
             (async () => {
-              console.log("restart trigger");
-              await daemon.init(base_dir, {
+              console.log("restart trigger ~");
+              await daemon.target({
                 path: document.fileName, //path.relative(base_dir, ),
                 identifier: widgetId,
                 constructor: constructorId,

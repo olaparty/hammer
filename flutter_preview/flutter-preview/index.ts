@@ -548,7 +548,8 @@ export class FlutterPreviewProject implements IFlutterRunnerClient {
   kill(): void {
     return this.client.kill();
   }
-  restart() {
+  async restart() {
+    await this.override_main_dart();
     return this.client.restart();
   }
   // #endregion IFlutterRunnerClient
