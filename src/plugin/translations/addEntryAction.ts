@@ -21,15 +21,20 @@ class AddEntryAction {
             return; // No open text editor
         }
 
-        if (path.extname(editor.document.uri.path) !== '.dart') {
+        var directAdd = true;
+        try {
+            if (!editor.selection.isEmpty) {
+                directAdd = false;
+            }
+        } catch (_) { }
+
+        if (!directAdd && path.extname(editor.document.uri.path) !== '.dart') {
             vscode.window.showInformationMessage('active document is not dart file');
             return;
         }
-        try {
-            let range = this.args && (this.args as vscode.Range);
-            editor.selection = new vscode.Selection(range.start, range.end)
-        } catch (_) { }
 
+        const packagePath = CommonUtil.getPackagePath(editor.document.uri.path);
+        const relativePackagePath = (packagePath ?? '').replace(this.workspaceRoot ?? '', '');
         const selection = editor.selection;
         const currentLine = editor.document.lineAt(selection.active.line);
 
@@ -38,30 +43,37 @@ class AddEntryAction {
             matches = currentLine.text.match(RegExp('\"(.*?)\"', 'g'));
         }
 
-        if (!matches || !matches.length) {
-            vscode.window.showInformationMessage('current line does not contain dart string');
-            return;
-        }
-        var selectText = matches[0];
-        if (matches.length > 1) {
-            for (let index = 0; index < matches.length; index++) {
-                const value = matches[index];
-                const startIndex = currentLine.text.indexOf(value);
-                if (selection.start.character >= startIndex && selection.start.character <= startIndex + value.length) {
-                    selectText = value;
-                    break;
-                }
-            };
+        var selectText;
+        var result;
+
+        if (!directAdd) {
+            if (!matches || !matches.length) {
+                return;
+            }
+            selectText = matches[0];
+            if (matches.length > 1) {
+                for (let index = 0; index < matches.length; index++) {
+                    const value = matches[index];
+                    const startIndex = currentLine.text.indexOf(value);
+                    if (selection.start.character >= startIndex && selection.start.character <= startIndex + value.length) {
+                        selectText = value;
+                        break;
+                    }
+                };
+            }
+        } else {
+            selectText = await vscode.window.showInputBox({
+                placeHolder: `Enter the text`,
+                prompt: `Save text into ${path.join(relativePackagePath, cnJsonRelativePath)}`,
+            });
         }
 
-        const packagePath = CommonUtil.getPackagePath(editor.document.uri.path);
-        const relativePackagePath = (packagePath ?? '').replace(this.workspaceRoot ?? '', '');
-        const result = await vscode.window.showInputBox({
+        result = await vscode.window.showInputBox({
             placeHolder: `Enter the key of '${selectText}'`,
             prompt: `Save '${selectText}' into ${path.join(relativePackagePath, cnJsonRelativePath)}`,
         });
 
-        this._addLocalEntry(result, selectText, packagePath);
+        this._addLocalEntry(directAdd, result, selectText, packagePath);
     }
 
     private _replaceEntryValue(value: string | undefined): string | undefined {
@@ -94,8 +106,18 @@ class AddEntryAction {
         return str;
     }
 
-    private async _addLocalEntry(entryName: string | undefined, entryValue: string | undefined, packageRoot: string | undefined): Promise<Thenable<boolean> | boolean> {
-        if (!packageRoot || !entryName || !entryValue) return false;
+    private async _addLocalEntry(
+        directAdd: boolean,
+        entryName: string | undefined,
+        selectText: string | undefined,
+        packageRoot: string | undefined)
+        : Promise<Thenable<boolean> | boolean> {
+        if (!packageRoot || !entryName || !selectText) return false;
+
+        // if (directAdd && !selectText || !selectText.length) {
+        //     vscode.window.showInformationMessage('current line does not contain dart string');
+        //     return false;
+        // }
 
         // validate duplicated keys
         var cnJsonFile = path.join(packageRoot, cnJsonRelativePath);
@@ -110,9 +132,11 @@ class AddEntryAction {
             return false;
         }
 
-        var rawEntryValue = entryValue;
-        if (entryValue.startsWith('\'') || entryValue.startsWith('\"')) {
-            rawEntryValue = entryValue.substring(1, entryValue.length - 1);
+        var rawEntryValue = selectText;
+        if (!directAdd) {
+            if (selectText.startsWith('\'') || selectText.startsWith('\"')) {
+                rawEntryValue = selectText.substring(1, selectText.length - 1);
+            }
         }
 
         const editResults: Array<Thenable<boolean>> = Array();
@@ -120,28 +144,16 @@ class AddEntryAction {
         const hasParams = ((value ?? '').match(RegExp("%\\d", 'g')) ?? []).length > 0;
         
         // add entry into json files
-        const formatJson = vscode.workspace.getConfiguration().get<boolean>(Constants.FORMAT_LANGUAGE_JSON);
-        var valueWithoutBlank = value?.replace('\\n', '\n');
-        if (formatJson) {
-            jsonData[entryName] = valueWithoutBlank;
-            var newJsonData = JSON.stringify(jsonData, null, 4);
-            fs.writeFileSync(cnJsonFile, newJsonData, 'utf-8');
-        } else {
-            var wseditor = new vscode.WorkspaceEdit();
-            var {indent, insertPos} = this._getCnJsonInsertPos(cnJsonFile);
-            wseditor.insert(vscode.Uri.file(cnJsonFile), insertPos, `,\n${indent}\"${entryName}\":\"${valueWithoutBlank}\"`);
-            editResults.push(vscode.workspace.applyEdit(wseditor));
-        }
+        jsonData[entryName] = value?.replace('\\n', '\n');
+        var newJsonData = JSON.stringify(jsonData, null, '	');
+        // sync to Android Studio format
+        newJsonData = newJsonData.replace(RegExp('\": \"', 'g'), '":"');
+        fs.writeFileSync(cnJsonFile, newJsonData, 'utf-8');
 
         var editor = vscode.window.activeTextEditor;
         if (!editor) return false;
         var selection = editor.selection;
         const currentLine = editor.document.lineAt(selection.active.line);
-
-        var startPos = currentLine.text.indexOf(entryValue);
-
-        var start = new vscode.Position(selection.start.line, startPos);
-        var end = new vscode.Position(selection.end.line, startPos + entryValue.length);
 
         // check import of current k.dart
         const relativePathToRoot = path.relative(path.dirname(editor.document.uri.fsPath), path.join(packageRoot, 'lib'));
@@ -149,10 +161,16 @@ class AddEntryAction {
 
         const textToReplace = hasParams ? `K.${entryName}([])` : `K.${entryName}`;
         const importResult = editor.edit(edit => {
-            edit.replace(new vscode.Range(start, end), textToReplace);
+            // replace Text('xx') to Text(K.xxx)
+            if (!directAdd) {
+                var startPos = currentLine.text.indexOf(selectText);
+                var start = new vscode.Position(selection.start.line, startPos);
+                var end = new vscode.Position(selection.end.line, startPos + selectText.length);
+                edit.replace(new vscode.Range(start, end), textToReplace);
+            }
             if (shoudFixImport && editor) {
                 const importPotionRegex = editor.document.getText().match(RegExp('import'));
-                var importPostion = new vscode.Position(0, 0);
+                var importPostion = new vscode.Position(1, 0);
                 if (importPotionRegex && importPotionRegex.index) {
                     importPostion = editor.document.positionAt(Math.max(importPotionRegex.index));
                 }
@@ -163,22 +181,36 @@ class AddEntryAction {
 
         var kdartGenFilePath = path.join(packageRoot, 'tools', 'kdart_cli', 'kdart_cli');
         /// run kdart_cli if bin exists, 
-        if(PathUtil.pathExists(kdartGenFilePath)) {
+        if (PathUtil.pathExists(kdartGenFilePath)) {
             var result = await kdartGenAction(kdartGenFilePath, vscode.workspace.rootPath!)
             if(result != ''){
                 vscode.window.showInformationMessage(`failed: ${result}`);
             }
-        }else{
-            // add entry into k.dart 
-            var wseditor = new vscode.WorkspaceEdit();
-            var kdartFilePath = path.join(packageRoot, 'lib', 'k.dart');
-            var {indent, insertPos} = this._getKDartInsertPos(kdartFilePath);
-            const textToJson = hasParams ? `\n${indent}// ${value}\n${indent}static String ${entryName} (List<String> args){ return R.string('${entryName}',args: args);}\n`
-                : `\n${indent}/// ${rawEntryValue}\n${indent}static String get ${entryName} => R.string('${entryName}');\n`;
-            wseditor.insert(vscode.Uri.file(kdartFilePath), insertPos, textToJson);
-            editResults.push(vscode.workspace.applyEdit(wseditor));
+        } else {
+           // add entry into k.dart 
+           var kdartFilePath = path.join(packageRoot, 'lib', 'k.dart');
+           var kdartString = `import 'package:common_core/common_core.dart';\n/// Automatically generated, do not edit\nclass K {\n`;
+            for (const key in jsonData) {
+                const value = jsonData[key];
+                const note = value.replace(RegExp('\r|\n', 'g'), ' ');
+                kdartString += `  /// ${note}\n`;
+                var hasParamsInValue = false;
+                if (value.includes("%")) {
+                    hasParamsInValue = ((value ?? '').match(RegExp("%\\d", 'g')) ?? []).length > 0;
+                }
+
+                if (hasParamsInValue) {
+                    // has params
+                    kdartString += `  static String ${key}(List<String> args) => R.string('${key}', args: args);\n\n`;
+                } else {
+                    kdartString += `  static String get ${key} => R.string('${key}');\n\n`;
+                }
+            }
+            kdartString += "}";
+            fs.writeFileSync(kdartFilePath, kdartString, 'utf-8');
+            const result = await vscode.workspace.saveAll();
+            return result;
         }
-        
         return await Promise.all(editResults).then(
             (successList) => {
                 for (const index in successList) {
@@ -202,7 +234,7 @@ class AddEntryAction {
         return !matches || !matches.length;
     }
 
-    private _getKDartInsertPos(filepath: string): {indent: String, insertPos: vscode.Position} {
+    private _getKDartInsertPos(filepath: string): { indent: String, insertPos: vscode.Position } {
         if (PathUtil.pathExists(filepath)) {
             const kdartfile = fs.readFileSync(filepath, 'utf-8');
             const lines = kdartfile.split('\n');
@@ -227,13 +259,13 @@ class AddEntryAction {
                 indent = indentMatch[0];
             }
 
-            return {indent: indent, insertPos: new vscode.Position(endLineNo, 0)};
+            return { indent: indent, insertPos: new vscode.Position(endLineNo, 0) };
         }
 
-        return {indent:'\t', insertPos: new vscode.Position(0, 0)};
+        return { indent: '\t', insertPos: new vscode.Position(0, 0) };
     }
 
-    private _getCnJsonInsertPos(filepath: string): {indent: String, insertPos: vscode.Position} {
+    private _getCnJsonInsertPos(filepath: string): { indent: String, insertPos: vscode.Position } {
         if (PathUtil.pathExists(filepath)) {
             const kdartfile = fs.readFileSync(filepath, 'utf-8');
             const lines = kdartfile.split('\n');
@@ -254,14 +286,12 @@ class AddEntryAction {
                 indent = indentMatch[0];
             }
 
-            const character =Math.max(0, lines[endLineNo].length);
-            return {indent: indent, insertPos: new vscode.Position(endLineNo, character)};
+            const character = Math.max(0, lines[endLineNo].length);
+            return { indent: indent, insertPos: new vscode.Position(endLineNo, character) };
         }
 
-        return {indent:'\t', insertPos: new vscode.Position(0, 0)};
+        return { indent: '\t', insertPos: new vscode.Position(0, 0) };
     }
-
-    
 }
 
 

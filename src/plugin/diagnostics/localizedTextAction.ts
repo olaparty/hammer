@@ -20,8 +20,8 @@ export class LocalizedTextAction implements ICodeAction {
     public readonly providedCodeActionKinds = [
         vscode.CodeActionKind.QuickFix
     ];
-
-    public provideCodeActions(document: vscode.TextDocument, range: vscode.Range): vscode.CodeAction[] | undefined {
+    
+    public provideCodeActions<T>(document: vscode.TextDocument, range: vscode.Range): vscode.CodeAction[] | undefined | T {
         const rangeText = document.getText(range);
         const matches = this._getCheckRegex().exec(rangeText);
         if (!matches || !matches.length) return;

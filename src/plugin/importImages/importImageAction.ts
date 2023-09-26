@@ -69,7 +69,7 @@ class ImportImageAction {
         let filePath = (dialogRes as vscode.Uri[])[0].path;
 
         // asset/images dir
-        const imagesDirPath = packageName == undefined ? `${this.workspaceRoot}/assets/images` : `${this.workspaceRoot}/banban_base/${packageName}/assets/images`;
+        const imagesDirPath = packageName == undefined ? `${this.workspaceRoot}/assets/images` : `${this.workspaceRoot}/common_base/${packageName}/assets/images`;
 
         // select sub image dir
         const subImgDirs: string[] = ['.'];

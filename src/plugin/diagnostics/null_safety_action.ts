@@ -18,7 +18,7 @@ export class NullSafetyAction implements ICodeAction {
         vscode.CodeActionKind.QuickFix
     ];
 
-    public provideCodeActions(document: vscode.TextDocument, range: vscode.Range): vscode.CodeAction[] | undefined {
+    public provideCodeActions<T>(document: vscode.TextDocument, range: vscode.Range): vscode.CodeAction[] | undefined | T {
         const rangeText = document.getText(range);
 
         let match = this._textDetectRegex.exec(rangeText)
@@ -31,14 +31,14 @@ export class NullSafetyAction implements ICodeAction {
     }
 
     private createFix(document: vscode.TextDocument, range: vscode.Range): vscode.CodeAction {
-        const fix = new vscode.CodeAction(`Convert to be  null safety`, vscode.CodeActionKind.QuickFix);
-        fix.command = { command: SUPPORT_NULL_SAFETY_COMMAND, arguments: [range], title: 'Convert to be  null safety', tooltip: 'Will add //@dart = 2.12 in the head' };
+        const fix = new vscode.CodeAction(`Convert to be null safety`, vscode.CodeActionKind.QuickFix);
+        fix.command = { command: SUPPORT_NULL_SAFETY_COMMAND, arguments: [range], title: 'Convert to be null safety', tooltip: 'Will add //@dart = 2.12 in the head' };
         return fix;
     }
 
     private createCommand(): vscode.CodeAction {
-        const action = new vscode.CodeAction(`Convert to be  null safety`, vscode.CodeActionKind.Empty);
-        action.command = { command: SUPPORT_NULL_SAFETY_COMMAND, title: 'Convert to be  null safety', tooltip: 'You will enter the key for the string' };
+        const action = new vscode.CodeAction(`Convert to be null safety`, vscode.CodeActionKind.Empty);
+        action.command = { command: SUPPORT_NULL_SAFETY_COMMAND, title: 'Convert to be null safety', tooltip: 'You will enter the key for the string' };
         return action;
     }
 
@@ -60,7 +60,7 @@ export class NullSafetyAction implements ICodeAction {
                     let startPosition = new vscode.Position(0, 0);
                     collections.push({
                         code: TEXT_INSPECT,
-                        message: 'Convert to be  null safety',
+                        message: 'Convert to be null safety',
                         range: new vscode.Range(startPosition, startPosition),
                         severity: vscode.DiagnosticSeverity.Error,
                         source: '[hammer]'

@@ -26,7 +26,7 @@ export class LocalizedWidgetAction implements ICodeAction {
         vscode.CodeActionKind.QuickFix
     ];
 
-    public provideCodeActions(document: vscode.TextDocument, range: vscode.Range): vscode.CodeAction[] | undefined {
+    public provideCodeActions<T>(document: vscode.TextDocument, range: vscode.Range): vscode.CodeAction[] | undefined | T {
         const rangeText = document.getText(range);
 
         for (const widgetName of this._widgetDetect) {
