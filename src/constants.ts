@@ -5,7 +5,6 @@ export class Constants {
     static readonly OPEN_TMS_FILE_COMMAND = 'extension.openTmsFile';
     static readonly AUTO_REFRESH_PROPERTY = 'tms.autoRefresh';
     static readonly ONLY_CHECK_CHINESE = 'tms.onlyCheckChineseCharacters';
-    static readonly FORMAT_LANGUAGE_JSON = 'tms.formatLanguageJson';
     static readonly COMPRESS_IMAGE_SCRIPT = 'tms.imageCompressScript';
     static readonly CROWDIN_PATH_SEPARATOR = '/';
     static readonly PLUGIN_VERSION = '1.0.3';
