@@ -15,18 +15,21 @@ const protocAction = async (binPath: string, fileName: string, args?: ReadonlyAr
         args = [];
     }
     const currentDir = path.dirname(fileName);
-    const protocPluginPath = Constants.EXTENSION_CONTEXT.asAbsolutePath(path.join('bin', 'proto2dart'));
+    var protocPluginPath = path.join(vscode.workspace.rootPath ?? '', 'tools', 'bin', 'proto2dart');
+    if (!PathUtil.pathExists(protocPluginPath)) {
+        protocPluginPath = Constants.EXTENSION_CONTEXT.asAbsolutePath(path.join('bin', 'proto2dart'));
+    }
 
     if (!cwd) {
         cwd = currentDir;
     }
-    const newArgs =  ["-I", currentDir, `--plugin=protoc-gen-custom=${protocPluginPath}`, `--custom_out=${currentDir}`, fileName];
+    const newArgs = ["-I", currentDir, `--plugin=protoc-gen-custom=${protocPluginPath}`, `--custom_out=${currentDir}`, fileName];
     const env = {};
     const proc = await runProcess(binPath, newArgs, cwd, env, safeSpawn);
-	if (proc.exitCode === 0) {
+    if (proc.exitCode === 0) {
         const result = proc.stdout.trim();
         return ''
-	}
+    }
 
     return proc.stderr;
 
@@ -52,14 +55,14 @@ export const genProtoCommand = (args: any) => {
             try {
                 const activeEditor = getActiveTextEditor();
                 if (!validEditor(activeEditor)) {
-                    return ;
+                    return;
                 }
 
                 let currentFsPath = activeEditor.document.uri.fsPath;
-                if(args && args.fsPath && path.extname(args.fsPath) == '.proto') {
+                if (args && args.fsPath && path.extname(args.fsPath) == '.proto') {
                     currentFsPath = args.fsPath
                 }
-                
+
                 const protocBin = await getProtcBin();
                 if (protocBin === '') {
                     const answer = await vscode.window.showInformationMessage(
@@ -74,20 +77,20 @@ export const genProtoCommand = (args: any) => {
                 }
 
                 var result = await protocAction(protocBin, currentFsPath)
-                if(result != ''){
+                if (result != '') {
                     vscode.window.showInformationMessage(`failed: ${result}`);
                     return;
                 }
 
-                const dartfilePath = currentFsPath.replace('.proto','.twirp.dart');
+                const dartfilePath = currentFsPath.replace('.proto', '.twirp.dart');
                 const dartFileUri = vscode.Uri.file(dartfilePath);
 
-                if(!PathUtil.pathExists(dartfilePath)) return;
-               
-                vscode.commands.executeCommand('vscode.open', dartFileUri).then(_=>{
+                if (!PathUtil.pathExists(dartfilePath)) return;
+
+                vscode.commands.executeCommand('vscode.open', dartFileUri).then(_ => {
                     CommonUtil.formatDocument(dartFileUri);
                 });
-     
+
                 vscode.window.showInformationMessage(`generate finished`);
 
             } catch (err) {
