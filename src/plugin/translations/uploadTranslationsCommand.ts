@@ -136,7 +136,7 @@ export const uploadTranslationSource = (arg: vscode.Uri, configHolder: CrowdinCo
                     if (branch === 'beta' || branch === 'main') {
                         branch = undefined
                     } else {
-                        branch = branch.replace(/[^\w\s-]/gi, "-")
+                        branch = branch.replace(/[^a-zA-Z0-9]/g, "-")
                     }
                     
                 }
