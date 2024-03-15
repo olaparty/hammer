@@ -72,9 +72,9 @@ async function hasFileDiff(docUri: vscode.Uri, filePath: string): Promise<boolea
       return false;
     }
     
-    const beta = (await repository.getBranch("beta")).commit;
-    if (beta != null) {
-        return (await (repository.diffWith(beta, filePath))).length > 0
+    const main = (await repository.getBranch("main")).commit;
+    if (main != null) {
+        return (await (repository.diffWith(main, filePath))).length > 0
     }
     return false;
     
@@ -133,7 +133,7 @@ export const uploadTranslationSource = (arg: vscode.Uri, configHolder: CrowdinCo
                     branch = CommonUtil.getCurrentGitBranch(editor.document.uri)
                 }
                 if (branch !== undefined) {
-                    if (branch === 'beta' || branch === 'main') {
+                    if (branch === 'main') {
                         branch = undefined
                     } else {
                         branch = branch.replace(/[^a-zA-Z0-9]/g, "-")
@@ -218,7 +218,7 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
                     }
                 });
                 const answer = await vscode.window.showInformationMessage(
-                    `Comparing with beta, Upload local changes\n${Array.from(fileMap.keys()).join('\n')}`,
+                    `Comparing with main, Upload local changes\n${Array.from(fileMap.keys()).join('\n')}`,
                     { modal: true },
                     ...["Yes", "No"]
                 );
@@ -233,7 +233,7 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
                     branch = CommonUtil.getCurrentGitBranch(editor.document.uri)
                 }
                 if (branch !== undefined) {
-                    if (branch === 'beta' || branch === 'main') {
+                    if (branch === 'main') {
                         const answer = await vscode.window.showInformationMessage(
                             `Override translations in main?`,
                             { modal: true },

@@ -53,7 +53,7 @@ export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
                     branch = CommonUtil.getCurrentGitBranch(editor.document.uri)
                 }
                 if (branch !== undefined) {
-                    if (branch === 'beta' || branch === 'main') {
+                    if (branch === 'main') {
                         branch = undefined
                     } else {
                         branch = branch.replace(/[^\w\s-]/gi, "-")
