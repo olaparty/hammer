@@ -245,7 +245,7 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
                         }
                         branch = undefined
                     } else {
-                        branch = branch.replace(/[^\w\s-]/gi, "-")
+                        branch = branch.replace(/[^a-zA-Z0-9]/g, "-")
                     }
                     
                 }
