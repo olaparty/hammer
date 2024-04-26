@@ -39,7 +39,7 @@ const protocAction = async (binPath: string, fileName: string, args?: ReadonlyAr
         const commonImportPath = path.join(rootPath, commonProtoPath)
         const outputPath = path.join(rootPath, 'proto_def/lib')
         
-        var protocPluginPath = path.join(rootPath, 'tools', 'protoc_plugin.exe');
+        var protocPluginPath = path.join(rootPath, 'tools', 'proto2dart');
         if (!cwd) {
             cwd = currentDir;
         }
