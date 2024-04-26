@@ -35,11 +35,11 @@ const protocAction = async (binPath: string, fileName: string, args?: ReadonlyAr
         if (rootPath == undefined) {
             return "Unable to find root folder for project in both git or workspace";
         }
-        const commonProtoPath = "proto_def/lib/common"
+        const commonProtoPath = "banban_base/proto_def/lib/common"
         const commonImportPath = path.join(rootPath, commonProtoPath)
-        const outputPath = path.join(rootPath, 'proto_def/lib')
+        const outputPath = path.join(rootPath, 'banban_base/proto_def/lib')
         
-        var protocPluginPath = path.join(rootPath, 'tools', 'bin', 'proto2dart');
+        var protocPluginPath = path.join(rootPath, 'tools', 'bin', 'ptProtocPlugin');
         if (!cwd) {
             cwd = currentDir;
         }
