@@ -10,9 +10,11 @@ import { validEditor } from '../../util/editorvalidator';
 import { runProcess, safeSpawn } from '../../util/process';
 import { GitExtension } from '../../typings/git';
 import {readFileSync} from 'fs'
+import { CrowdinConfigHolder } from '../crowdinConfigHolder';
+import { ConfigModel } from '../../config/configModel';
 
 
-const protocAction = async (binPath: string, fileName: string, args?: ReadonlyArray<string>, cwd?: string | undefined): Promise<string> => {
+const protocAction = async (binPath: string, fileName: string,  config: CrowdinConfigHolder, args?: ReadonlyArray<string>, cwd?: string | undefined,): Promise<string> => {
     if (!args) {
         args = [];
     }
@@ -35,7 +37,13 @@ const protocAction = async (binPath: string, fileName: string, args?: ReadonlyAr
         if (rootPath == undefined) {
             return "Unable to find root folder for project in both git or workspace";
         }
-        const commonProtoPath = "banban_base/proto_def/lib/common"
+        var cfg: ConfigModel | undefined = undefined;
+                
+        for (let elem of config.configurations.entries()) {
+            cfg = elem[0];
+            
+        }
+        const commonProtoPath = cfg?.commonProtoPath ?? "banban_base/proto_def/lib/common"
         const commonImportPath = path.join(rootPath, commonProtoPath)
         const outputPath = path.join(rootPath, 'banban_base/proto_def/lib')
         
@@ -95,7 +103,7 @@ const getProtcBin = (
 const installProtobuf = (
 ): Promise<string> => execute('brew', ['install', 'protobuf'], {});
 
-export const genProtoCommand = (args: any) => {
+export const genProtoCommand = (args: any, config: CrowdinConfigHolder) => {
     return CommonUtil.withProgress(
         async () => {
             try {
@@ -122,7 +130,7 @@ export const genProtoCommand = (args: any) => {
                     return;
                 }
 
-                var result = await protocAction(protocBin, currentFsPath)
+                var result = await protocAction(protocBin, currentFsPath, config)
                 if (result != '') {
                     vscode.window.showInformationMessage(`failed: ${result}`);
                     return;
