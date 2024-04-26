@@ -8,34 +8,88 @@ import { Constants } from '../../constants';
 import { getActiveTextEditor } from '../../util/get-active';
 import { validEditor } from '../../util/editorvalidator';
 import { runProcess, safeSpawn } from '../../util/process';
+import { GitExtension } from '../../typings/git';
+import {readFileSync} from 'fs'
+import { CrowdinConfigHolder } from '../crowdinConfigHolder';
+import { ConfigModel } from '../../config/configModel';
 
 
-const protocAction = async (binPath: string, fileName: string, args?: ReadonlyArray<string>, cwd?: string | undefined): Promise<string> => {
+const protocAction = async (binPath: string, fileName: string,  config: CrowdinConfigHolder, args?: ReadonlyArray<string>, cwd?: string | undefined,): Promise<string> => {
     if (!args) {
         args = [];
     }
     const currentDir = path.dirname(fileName);
-    var protocPluginPath = path.join(vscode.workspace.rootPath ?? '', 'tools', 'bin', 'proto2dart');
-    if (!PathUtil.pathExists(protocPluginPath)) {
-        protocPluginPath = Constants.EXTENSION_CONTEXT.asAbsolutePath(path.join('bin', 'proto2dart'));
+    const extension = vscode.extensions.getExtension<GitExtension>("vscode.git");
+    
+    if (!extension) {
+      console.warn("Git extension not available");
+      return 'Git extension not available';
     }
-
-    if (!cwd) {
-        cwd = currentDir;
+    if (!extension.isActive) {
+      console.warn("Git extension not active");
+      return 'Git extension not active';
     }
-    const newArgs = ["-I", currentDir, `--plugin=protoc-gen-custom=${protocPluginPath}`, `--custom_out=${currentDir}`, fileName];
-    const env = {};
-    const proc = await runProcess(binPath, newArgs, cwd, env, safeSpawn);
-    if (proc.exitCode === 0) {
-        const result = proc.stdout.trim();
-        return ''
+    const git = extension.exports.getAPI(1);
+    const editor = vscode.window.activeTextEditor;
+    if(editor) {
+        const repo = git.getRepository(editor.document.uri)
+        const rootPath = repo?.rootUri?.path ?? (vscode.workspace.workspaceFolders ?? [])[0].uri.path;
+        if (rootPath == undefined) {
+            return "Unable to find root folder for project in both git or workspace";
+        }
+        var cfg: ConfigModel | undefined = undefined;
+                
+        for (let elem of config.configurations.entries()) {
+            cfg = elem[0];
+            
+        }
+        const commonProtoPath = cfg?.commonProtoPath ?? "banban_base/proto_def/lib/common"
+        const commonImportPath = path.join(rootPath, commonProtoPath)
+        const outputPath = path.join(rootPath, 'banban_base/proto_def/lib')
+        
+        var protocPluginPath = path.join(rootPath, 'tools', 'bin', 'ptProtocPlugin');
+        if (!cwd) {
+            cwd = currentDir;
+        }
+        const additionalImports =  obtainWellknownImportFiles(fileName)
+        
+        const newArgs = ["-I", `${currentDir}`, '-I', commonImportPath, `--plugin=protoc-gen-custom=${protocPluginPath}`, `--custom_out=api_path=api,pb_path=pb:${outputPath}`, fileName].concat(additionalImports);
+        const env = {};
+        const proc = await runProcess(binPath, newArgs, cwd, env, safeSpawn);
+        
+        if (proc.exitCode === 0) {
+            const result = proc.stdout.trim();
+            return ''
+        }
+
+        return proc.stderr;
+        
+    } else {
+        return "Unable to generate proto files without an proto file opened in the current active editor"
     }
-
-    return proc.stderr;
-
+     
     // -I . --plugin=protoc-gen-custom=./main --custom_out=. captcha.proto
     // args = ["-I", currentDir, `--plugin=protoc-gen-custom=${protocPluginPath}`, `--custom_out=${currentDir}`, fileName];
     // return await runProtoc(binPath, ...args);
+}
+
+const obtainWellknownImportFiles = (fileName: string): string[] => {
+    const protoFile = readFileSync(fileName, {
+        encoding: 'utf-8'
+    })
+    const regex = /"([^"]+)"/;
+    const lines = protoFile.split('\n');
+    const wellknownImportLines = lines.filter(line => line.startsWith('import "google/protobuf'));
+    const wellknownImportFiles = wellknownImportLines.map((val) => {
+        const match = val.match(regex);
+        if (match && match.length > 1) {
+          return match[1];
+        }
+        return null
+    }).flatMap(f => f ? [f] : [])
+ 
+
+  return wellknownImportFiles;
 }
 
 const runProtoc = (
@@ -49,7 +103,7 @@ const getProtcBin = (
 const installProtobuf = (
 ): Promise<string> => execute('brew', ['install', 'protobuf'], {});
 
-export const genProtoCommand = (args: any) => {
+export const genProtoCommand = (args: any, config: CrowdinConfigHolder) => {
     return CommonUtil.withProgress(
         async () => {
             try {
@@ -76,7 +130,7 @@ export const genProtoCommand = (args: any) => {
                     return;
                 }
 
-                var result = await protocAction(protocBin, currentFsPath)
+                var result = await protocAction(protocBin, currentFsPath, config)
                 if (result != '') {
                     vscode.window.showInformationMessage(`failed: ${result}`);
                     return;
