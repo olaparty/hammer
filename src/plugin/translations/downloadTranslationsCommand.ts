@@ -56,7 +56,7 @@ export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
                     if (branch === 'main') {
                         branch = undefined
                     } else {
-                        branch = branch.replace(/[^\w\s-]/gi, "-")
+                        branch = branch.replace(/[^a-zA-Z0-9]/g, "-")
                     }
                     
                 }
