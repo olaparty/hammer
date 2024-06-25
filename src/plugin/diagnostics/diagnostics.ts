@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
 import { LocalizedTextAction } from './localizedTextAction';
 // import { LocalizedWidgetAction } from './localizedWidgetAction';
-import { NullSafetyAction } from './null_safety_action';
-import { ICodeAction,DocumentGitTag } from './codeaction_interface';
+import { ICodeAction, DocumentGitTag } from './codeaction_interface';
 import { isActiveFileNewAdded } from '../../util/gitcommand';
 
 
@@ -19,7 +18,6 @@ export class Diagnostics {
         this._dartExt = dartExt;
 
         this._codeActions.push(new LocalizedTextAction());
-        this._codeActions.push(new NullSafetyAction());
         // this._codeActions.push(new LocalizedWidgetAction());
 
         this._subscribeToDocumentChanges(context);
@@ -57,12 +55,12 @@ export class Diagnostics {
     }
 
 
-    private _refreshDiagnostics(doc: vscode.TextDocument): void{     
-        if(this._delayTimeout) clearTimeout(this._delayTimeout);
+    private _refreshDiagnostics(doc: vscode.TextDocument): void {
+        if (this._delayTimeout) clearTimeout(this._delayTimeout);
 
         this._delayTimeout = setTimeout(() => {
             this._processDoc(doc);
-        }, 500);  
+        }, 500);
     }
 
     private async _processDoc(doc: vscode.TextDocument) {
@@ -74,7 +72,7 @@ export class Diagnostics {
         // const node = flutterOutlineTreeProvider!.getNodeAt(e.textEditor.document.uri, e.selections[0].start);
         this._codeActions.forEach((value) => {
             var diagnostic = value.createDiagnostic(doc, gitTag);
-            if(!!diagnostic) {
+            if (!!diagnostic) {
                 diagnostics.push(...diagnostic);
             }
         });
@@ -83,7 +81,7 @@ export class Diagnostics {
             const lineOfText = doc.lineAt(lineIndex);
             this._codeActions.forEach((value) => {
                 var diagnostic = value.createLineDiagnostic(doc, lineOfText, lineIndex, gitTag);
-                if(!!diagnostic) {
+                if (!!diagnostic) {
                     diagnostics.push(...diagnostic);
                 }
             });
