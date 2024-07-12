@@ -174,7 +174,7 @@ export class ConfigProvider {
 interface PrivateConfigModel {
     project_id: string;
     project_id_env: string;
-    common_proto_path?: string;
+    proto_package_path?: string;
     base_url?: string;
     base_url_env?: string;
     api_token: string;
