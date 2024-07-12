@@ -43,9 +43,9 @@ const protocAction = async (binPath: string, fileName: string,  config: CrowdinC
             cfg = elem[0];
             
         }
-        const commonProtoPath = cfg?.commonProtoPath ?? "banban_base/proto_def/lib/common"
-        const commonImportPath = path.join(rootPath, commonProtoPath)
-        const outputPath = path.join(rootPath, 'banban_base/proto_def/lib')
+        const protoPackagePath = cfg?.protoPackagePath ?? "banban_base/proto_def/lib"
+        const commonImportPath = path.join(rootPath, protoPackagePath, 'common')
+        const outputPath = path.join(rootPath, protoPackagePath)
         
         var protocPluginPath = path.join(rootPath, 'tools', 'bin', 'ptProtocPlugin');
         if (!cwd) {
