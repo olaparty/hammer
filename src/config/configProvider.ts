@@ -58,7 +58,7 @@ export class ConfigProvider {
             throw new Error(`Missing "api_token" property in ${this.workspace.name}`);
         }
 
-        const protoPackagePath: string | undefined = this.getOrEnv(config, 'proto_package_path', 'common_proto_path_env');
+        const protoPackagePath: string | undefined = this.getOrEnv(config, 'proto_package_path', 'proto_package_path_env');
         
         const basePath = this.getOrEnv(config, 'base_path', 'base_path_env');
         if (!!basePath) {
