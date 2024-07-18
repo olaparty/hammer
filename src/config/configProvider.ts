@@ -58,7 +58,7 @@ export class ConfigProvider {
             throw new Error(`Missing "api_token" property in ${this.workspace.name}`);
         }
 
-        const commonProtoPath: string | undefined = this.getOrEnv(config, 'common_proto_path', 'common_proto_path_env');
+        const protoPackagePath: string | undefined = this.getOrEnv(config, 'proto_package_path', 'proto_package_path_env');
         
         const basePath = this.getOrEnv(config, 'base_path', 'base_path_env');
         if (!!basePath) {
@@ -108,7 +108,7 @@ export class ConfigProvider {
             projectId: parseInt(projectId || ''),
             directoryId: parseInt(directoryId|| ''),
             apiKey: apiKey || '',
-            commonProtoPath: commonProtoPath,
+            protoPackagePath: protoPackagePath,
             branch: config.branch,
             basePath,
             files: config.files.map(f => {
@@ -174,7 +174,7 @@ export class ConfigProvider {
 interface PrivateConfigModel {
     project_id: string;
     project_id_env: string;
-    common_proto_path?: string;
+    proto_package_path?: string;
     base_url?: string;
     base_url_env?: string;
     api_token: string;
