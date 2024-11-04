@@ -69,7 +69,7 @@ export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
                 await client.download(root, sourceFilesArr);
 
                 const rootChanges = await diffProcess("**/assets/locale/*.json", ["-w", "--name-only"]);
-                const baseChanges = await diffProcess("**/assets/locale/*.json", ["-w", "--name-only"], path.join(vscode.workspace.rootPath??'', Constants.DEFAULT_MODULE_DIR));
+                const baseChanges = await diffProcess("**/assets/locale/*.json", ["-w", "--name-only"], path.join(vscode.workspace.rootPath??'', config.modulePath));
                 
                 vscode.window.showInformationMessage(`sync finished \n${rootChanges}\n${baseChanges}`);
             } catch (err) {
