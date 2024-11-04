@@ -7,6 +7,7 @@ import * as yaml from 'yaml';
 import { ConfigModel } from './configModel';
 import { FileModel, Scheme } from './fileModel';
 import { GitExtension } from '../typings/git';
+import { Constants } from '../constants';
 
 
 const asyncFileExists = util.promisify(fs.exists);
@@ -59,6 +60,8 @@ export class ConfigProvider {
         }
 
         const protoPackagePath: string | undefined = this.getOrEnv(config, 'proto_package_path', 'proto_package_path_env');
+
+        const modulePath: string  = this.getOrEnv(config, 'module_path', 'module_path_env') ?? Constants.DEFAULT_MODULE_DIR; 
         
         const basePath = this.getOrEnv(config, 'base_path', 'base_path_env');
         if (!!basePath) {
@@ -109,6 +112,7 @@ export class ConfigProvider {
             directoryId: parseInt(directoryId|| ''),
             apiKey: apiKey || '',
             protoPackagePath: protoPackagePath,
+            modulePath: modulePath,
             branch: config.branch,
             basePath,
             files: config.files.map(f => {
