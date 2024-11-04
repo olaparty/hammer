@@ -194,13 +194,14 @@ export const uploadTranslations = (configHolder: CrowdinConfigHolder) => {
 
                 const pubYaml = path.join(root, 'pubspec.yaml');
                 const packagePubspec = yaml.parse(fs.readFileSync(pubYaml, 'utf8'));
+                const moduleDir = config.modulePath
 
                 const untranslateItems: TranslateItem[] = [];
                 const dependencies = Object.keys(packagePubspec.dependencies);
                 dependencies.push(Constants.ROOT_MODULE_NAME);
                 for (const module of dependencies) {
                     const filepath = (module == Constants.ROOT_MODULE_NAME) ? '.' : module;
-                    const moduleName = (module == Constants.ROOT_MODULE_NAME) ? '' : Constants.DEFAULT_MODULE_DIR;
+                    const moduleName = (module == Constants.ROOT_MODULE_NAME) ? '' : moduleDir;
                     const modulePath = path.join(root, moduleName, filepath);
                     untranslateItems.push(...(await _parseUntranslateItems(modulePath, 'string', module)));
                     untranslateItems.push(...(await _parseUntranslateItems(modulePath, 'array', module)));
