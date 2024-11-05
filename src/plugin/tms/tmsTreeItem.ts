@@ -46,7 +46,7 @@ export class TmsTreeItem extends vscode.TreeItem {
         if (!!this.config.basePath) {
             unzipFolder = path.join(unzipFolder, this.config.basePath);
         }
-        return this.client.download(unzipFolder, this.sourceFilesArr);
+        return this.client.download(unzipFolder, this.sourceFilesArr, {});
     }
 
     async save(): Promise<any> {

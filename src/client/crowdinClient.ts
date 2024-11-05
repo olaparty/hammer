@@ -40,7 +40,7 @@ export class CrowdinClient {
      * @param unzipFolder folder where to unzip downloaded files
      * @param sourceFilesArr list of sources and translations from configuration file and found source files
      */
-    async download(unzipFolder: string, sourceFilesArr: SourceFiles[]): Promise<any> {
+    async download(unzipFolder: string, sourceFilesArr: SourceFiles[], config: any): Promise<any> {
         try {
             let branchId: number | undefined;
             if (!!this.branch) {
@@ -91,7 +91,7 @@ export class CrowdinClient {
                 let filecomps = filename.split('.')[0].split('_');
                 filename = filecomps.pop() ?? '';
                 let modulename = filecomps.join('_') ?? '';
-                let moduleDir = Constants.DEFAULT_MODULE_DIR;
+                let moduleDir = config.modulePath ?? Constants.DEFAULT_MODULE_DIR;
 
                 if(modulename == Constants.ROOT_MODULE_NAME) {
                     modulename = '';

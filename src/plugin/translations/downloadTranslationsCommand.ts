@@ -66,7 +66,7 @@ export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
                 );
                 const sourceFilesArr = await Promise.all(promises);
                 //@ts-ignore
-                await client.download(root, sourceFilesArr);
+                await client.download(root, sourceFilesArr, config);
 
                 const rootChanges = await diffProcess("**/assets/locale/*.json", ["-w", "--name-only"]);
                 const baseChanges = await diffProcess("**/assets/locale/*.json", ["-w", "--name-only"], path.join(vscode.workspace.rootPath??'', config.modulePath));
