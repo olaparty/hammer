@@ -131,6 +131,10 @@
             {
                 "command": "generator.mockJsonToPbInCurrentFolder",
                 "title": "[Hammer] generate mock json to pb in current folder"
+            },
+            {
+                "command": "generator.rfw",
+                "title": "[Hammer] Convert to rfw"
             }
         ],
         "menus": {
@@ -200,6 +204,11 @@
                 {
                     "command": "generator.mockJsonToPbInCurrentFolder",
                     "when": "editorTextFocus && resourceExtname == .json",
+                    "group": "HammerGroup@0"
+                },
+                {
+                    "command": "generator.rfw",
+                    "when": "editorTextFocus && resourceExtname == .rfwtxt",
                     "group": "HammerGroup@0"
                 }
             ]
