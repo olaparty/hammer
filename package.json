@@ -3,7 +3,7 @@
     "displayName": "hammer",
     "description": "Hammer for Visual Studio Code",
     "publisher": "zhileichen",
-    "version": "1.9.12",
+    "version": "1.9.13",
     "license": "MIT",
     "engines": {
         "vscode": "^1.35.0"
@@ -119,6 +119,18 @@
             {
                 "command": "images.import",
                 "title": "[Hammer] Import image from file"
+            },
+            {
+                "command": "generator.mockImposter",
+                "title": "[Hammer] Generate mock imposter"
+            },
+            {
+                "command": "generator.mockJsonToPb",
+                "title": "[Hammer] Generate mock json to pb"
+            },
+            {
+                "command": "generator.mockJsonToPbInCurrentFolder",
+                "title": "[Hammer] generate mock json to pb in current folder"
             }
         ],
         "menus": {
@@ -173,6 +185,21 @@
                 {
                     "command": "localTranslations.upload",
                     "when": "editorTextFocus && editorLangId == dart && resourcePath =~  /^((?!packages/flutter/lib/src)(?!twirp.dart).)*$/",
+                    "group": "HammerGroup@0"
+                },
+                {
+                    "command": "generator.mockImposter",
+                    "when": "editorTextFocus && resourceExtname == .proto",
+                    "group": "HammerGroup@0"
+                },
+                {
+                    "command": "generator.mockJsonToPb",
+                    "when": "editorTextFocus && resourceExtname == .json",
+                    "group": "HammerGroup@0"
+                },
+                {
+                    "command": "generator.mockJsonToPbInCurrentFolder",
+                    "when": "editorTextFocus && resourceExtname == .json",
                     "group": "HammerGroup@0"
                 }
             ]
