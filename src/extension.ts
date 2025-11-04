@@ -9,6 +9,9 @@ import { addEntry } from './plugin/translations/addEntryAction';
 import { uploadTranslations, uploadTranslationSource } from './plugin/translations/uploadTranslationsCommand';
 import { genProtoCommand } from './plugin/generator/protoGenerator';
 import { genMobxCommand } from './plugin/generator/mobxstoreGenerator';
+import { genMockImposterCommand } from './plugin/generator/mockImposterGenerator';
+import { genMockJsonToPbCommand } from './plugin/generator/mockJsonToPbGenerator';
+import { genMockJsonToPbInCurrentFolderCommand } from './plugin/generator/mockJsonToPbInCurrentFolderGenerator';
 import { WrapObserverCodeActionProvider, wrapObserverCommand } from './plugin/diagnostics/wrapWithObserver';
 import { importImage } from './plugin/importImages/importImageAction';
 import __register_flutter_preview, {
@@ -50,6 +53,13 @@ export async function activate(context: vscode.ExtensionContext) {
   vscode.commands.registerCommand('hammer.wrapObserver', args => wrapObserverCommand(args));
 
   vscode.commands.registerCommand('images.import', args => importImage(args));
+
+  vscode.commands.registerCommand('generator.mockImposter', args => genMockImposterCommand(args));
+
+  vscode.commands.registerCommand('generator.mockJsonToPb', args => genMockJsonToPbCommand(args));
+
+  vscode.commands.registerCommand('generator.mockJsonToPbInCurrentFolder', args => genMockJsonToPbInCurrentFolderCommand(args));
+
   __register_flutter_preview(context);
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
     if (e.affectsConfiguration(Constants.AUTO_REFRESH_PROPERTY)) {
