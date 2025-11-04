@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as yaml from 'yaml';
 import { PathUtil } from '../../util/pathUtil';
 const cnJsonRelativePath = 'assets/locale/string_zh_CN.json';
 import { runProcess, safeSpawn } from '../../util/process';
@@ -66,6 +67,19 @@ class AddEntryAction {
         }
         return this._getPackagePath(parentDir);
     }
+    private _getPackageName(packagePath: string): string | undefined {
+        const pubspecPath = path.join(packagePath, 'pubspec.yaml');
+        if (!PathUtil.pathExists(pubspecPath)) {
+            return undefined;
+        }
+        try {
+            const pubspecContent = fs.readFileSync(pubspecPath, 'utf8');
+            const pubspec = yaml.parse(pubspecContent);
+            return pubspec.name;
+        } catch (error) {
+            return undefined;
+        }
+    }
     private _replaceEntryValue(value: string | undefined): string | undefined {
         if (!value) return undefined;
         let str = value;
@@ -122,15 +136,18 @@ class AddEntryAction {
         var startPos = currentLine.text.indexOf(entryValue);
         var start = new vscode.Position(selection.start.line, startPos);
         var end = new vscode.Position(selection.end.line, startPos + entryValue.length);
-        // check import of current k.dart
-        const relativePathToRoot = path.relative(editor.document.uri.fsPath, path.join(packageRoot, 'lib'));
-        var shoudFixImport = this._shoudFixImport(editor, relativePathToRoot);
+
+        // Get package name for import
+        const packageName = this._getPackageName(packageRoot);
+        const packageImport = packageName ? `package:${packageName}/k.dart` : 'k.dart';
+        var shoudFixImport = this._shoudFixImport(editor, packageImport);
+
         const textToReplace = hasParams ? `K.${entryName}([])` : `K.${entryName}`;
-        const textToJson = hasParams ? `\n\t///${value}\n\tstatic String ${entryName} (List<String> args){ return R.string('${entryName}',args: args);}\n`
-            : `\n\t///${rawEntryValue}\n\tstatic String get ${entryName} => R.string('${entryName}');\n`;
+        const textToJson = hasParams ? `\n\t///${value}\n\tstatic String ${entryName} (List<String> args){ return R.string('${entryName}', args: args, package: _package);}\n`
+            : `\n\t///${rawEntryValue}\n\tstatic String get ${entryName} => R.string('${entryName}', package: _package);\n`;
         editor.edit(edit => {
             edit.replace(new vscode.Range(start, end), textToReplace);
-            shoudFixImport && edit.insert(new vscode.Position(0, 0), `import \'${relativePathToRoot}/k.dart\';\n`);
+            shoudFixImport && edit.insert(new vscode.Position(0, 0), `import \'${packageImport}\';\n`);
         });
         
         var kdartGenFilePath = path.join(packageRoot, 'tools', 'kdart_cli', 'kdart_cli');
@@ -154,9 +171,11 @@ class AddEntryAction {
 
         return true;
     }
-    private _shoudFixImport(editor: vscode.TextEditor, relativePath: string): boolean {
+    private _shoudFixImport(editor: vscode.TextEditor, importPath: string): boolean {
         const text = editor.document.getText();
-        const matches = text.match(RegExp(`${relativePath}/k.dart\';`, 'g'));
+        // Escape special regex characters in the import path
+        const escapedPath = importPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const matches = text.match(RegExp(`${escapedPath}\';`, 'g'));
         return !matches || !matches.length;
     }
     private _getKDartInsertPos(filepath: string): vscode.Position {
