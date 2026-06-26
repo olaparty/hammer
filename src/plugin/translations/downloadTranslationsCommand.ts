@@ -9,7 +9,7 @@ import { CrowdinConfigHolder } from '../crowdinConfigHolder';
 import { CommonUtil } from '../../util/commonUtil';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
-import { diffProcess } from '../../util/gitcommand';
+import { diffProcess, getChangedKeysVsMain } from '../../util/gitcommand';
 import { Constants } from '../../constants';
 
 const asyncGlob = util.promisify(glob);
@@ -61,12 +61,98 @@ export const downloadTranslation = (configHolder: CrowdinConfigHolder) => {
                     
                 }
                 
+                const isOnFeatureBranch = branch !== undefined;
+
+                type Snapshot = { raw: string; parsed: Record<string, unknown> };
+
+                const snapshotJsonFiles = async (pattern: string): Promise<Map<string, Snapshot>> => {
+                    const snapshots = new Map<string, Snapshot>();
+                    const files = await asyncGlob(pattern, { cwd: root, root: root });
+                    for (const f of files) {
+                        const fullPath = path.join(root, f);
+                        if (fs.existsSync(fullPath)) {
+                            try {
+                                const raw = fs.readFileSync(fullPath, 'utf-8');
+                                snapshots.set(fullPath, { raw, parsed: JSON.parse(raw) });
+                            } catch { /* skip unparseable files */ }
+                        }
+                    }
+                    return snapshots;
+                };
+
+                let changedKeys = new Set<string>();
+                let enSnapshots = new Map<string, Snapshot>();
+                let zhTWSnapshots = new Map<string, Snapshot>();
+
+                if (isOnFeatureBranch) {
+                    changedKeys = await getChangedKeysVsMain(
+                        vscode.workspace.rootPath ?? '',
+                        '**/assets/locale/*_zh_CN.json'
+                    );
+                    enSnapshots = await snapshotJsonFiles('**/assets/locale/*_en.json');
+                    zhTWSnapshots = await snapshotJsonFiles('**/assets/locale/*_zh_TW.json');
+                }
+
                 const client = new CrowdinClient(
                     config.projectId, config.apiKey, branch, config.organization,undefined
                 );
                 const sourceFilesArr = await Promise.all(promises);
                 //@ts-ignore
                 await client.download(root, sourceFilesArr, config);
+
+                if (isOnFeatureBranch) {
+                    const applyPartialMerge = (
+                        snapshots: Map<string, Snapshot>,
+                        keys: Set<string>
+                    ) => {
+                        for (const [filePath, { raw: originalRaw, parsed: snapshot }] of snapshots) {
+                            if (!fs.existsSync(filePath)) continue;
+                            try {
+                                const downloaded: Record<string, unknown> = JSON.parse(
+                                    fs.readFileSync(filePath, 'utf-8')
+                                );
+
+                                let result = originalRaw;
+                                const keysToAppend: string[] = [];
+
+                                for (const key of keys) {
+                                    if (!(key in downloaded)) continue;
+                                    const newValue = JSON.stringify(downloaded[key]);
+
+                                    if (key in snapshot) {
+                                        // Replace only the value in-place, preserving surrounding formatting
+                                        const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                                        result = result.replace(
+                                            new RegExp(`("${escapedKey}"\\s*:\\s*)"(?:[^"\\\\]|\\\\.)*"`),
+                                            `$1${newValue}`
+                                        );
+                                    } else {
+                                        keysToAppend.push(key);
+                                    }
+                                }
+
+                                if (keysToAppend.length > 0) {
+                                    const indentMatch = result.match(/\n([ \t]+)"/);
+                                    const indent = indentMatch ? indentMatch[1] : '    ';
+                                    const closingIdx = result.lastIndexOf('}');
+                                    if (closingIdx !== -1) {
+                                        const before = result.slice(0, closingIdx).trimEnd();
+                                        const comma = before.endsWith(',') ? '' : ',';
+                                        const newEntries = keysToAppend
+                                            .map(k => `${indent}"${k}": ${JSON.stringify(downloaded[k])}`)
+                                            .join(',\n');
+                                        result = before + comma + '\n' + newEntries + '\n' + result.slice(closingIdx);
+                                    }
+                                }
+
+                                fs.writeFileSync(filePath, result);
+                            } catch { /* skip on error */ }
+                        }
+                    };
+
+                    applyPartialMerge(enSnapshots, changedKeys);
+                    applyPartialMerge(zhTWSnapshots, changedKeys);
+                }
 
                 const rootChanges = await diffProcess("**/assets/locale/*.json", ["-w", "--name-only"]);
                 const baseChanges = await diffProcess("**/assets/locale/*.json", ["-w", "--name-only"], path.join(vscode.workspace.rootPath??'', config.modulePath));

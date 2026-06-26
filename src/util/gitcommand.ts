@@ -57,6 +57,20 @@ export const isGitTracked = async (
     fileName: string,
 ): Promise<boolean> => !!await runGit(fileName, "rev-parse", "--git-dir");
 
+export const getChangedKeysVsMain = async (cwd: string, filePattern: string): Promise<Set<string>> => {
+    const diff = await runGitRaw(cwd, 'diff', 'main...HEAD', '--', filePattern);
+    const changedKeys = new Set<string>();
+    for (const line of diff.split('\n')) {
+        if (line.startsWith('+') && !line.startsWith('+++')) {
+            const match = line.match(/^\+\s*"([^"]+)"\s*:/);
+            if (match) {
+                changedKeys.add(match[1]);
+            }
+        }
+    }
+    return changedKeys;
+};
+
 export const diffProcess = async (fileName: string, args?: ReadonlyArray<string>,  cwd?: string | undefined): Promise<string> => {
     if(!cwd){
         cwd = vscode.workspace.rootPath;
